@@ -14,7 +14,7 @@ buttonItemBlue.onclick = () => setStrokeColor("blue");
 buttonItemGreeen.onclick = () => setStrokeColor("green");
 buttonItemBlack.onclick = () => setStrokeColor("#333");
 // buttonItemWhite.onclick = () => setStrokeColor("#fff");
-// buttonItemReset.onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+buttonItemReset.onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 function setStrokeColor(color) {
     ctx.beginPath();
