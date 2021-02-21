@@ -1,0 +1,9 @@
+.maze {
+    width: 100%;
+    height: 100vh;
+    background-image: url('../images/maze.png');
+}
+.maze--canvas {
+    position: absolute;
+    top: 11.5%;
+}
