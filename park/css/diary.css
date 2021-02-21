@@ -47,3 +47,14 @@
     background-color: #fff;
     margin-top: 2rem;
 }
+.button__item--light {
+    
+}
+
+.button__item--regular {
+}
+.button__item--bold {
+}
+.buttons.size {
+    right: 5rem;
+}
