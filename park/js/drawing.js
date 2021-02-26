@@ -30,6 +30,7 @@ function initCanvas(canvas) {
     })();
     // 터치 이벤트로 적용
     canvas.addEventListener("touchstart", function (e) {
+        e.preventDefault();
         mousePos = getTouchPos(canvas, e);
         let touch = e.touches[0];
         let mouseEvent = new MouseEvent("mousedown", {
