@@ -22,7 +22,6 @@ buttonItemLight.onclick = () => setStrokeWidth(2);
 buttonItemRegular.onclick = () => setStrokeWidth(6);
 buttonItemBold.onclick = () => setStrokeWidth(10);
 
-
 function setStrokeColor(color) {
     ctx.beginPath();
     ctx.strokeStyle = color;
