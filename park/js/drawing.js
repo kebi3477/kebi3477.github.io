@@ -43,6 +43,11 @@ function initCanvas(canvas) {
         canvas.dispatchEvent(mouseEvent);
     }, false);
     canvas.addEventListener("touchmove", function (e) {
+        if(e.touches[1] !== undefined) {
+            return false;
+        } else {
+            
+        }
         let touch = e.touches[0];
         let mouseEvent = new MouseEvent("mousemove", {
             clientX: touch.clientX,
