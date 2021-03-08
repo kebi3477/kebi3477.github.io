@@ -1,0 +1,17 @@
+.reward {
+    background-image: url('../images/reward.png');
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.buttons {
+    width: 48%;
+    position: relative;
+    top: 32%;
+    display: flex;
+    justify-content: space-between;
+}
+.buttons > img {
+    width: 45%;
+}

@@ -1,0 +1,9 @@
+.mart {
+    width: 100%;
+    height: 100vh;
+    background-image: url('../images/mart.png');
+}
+.mart--canvas {
+    position: absolute;
+    top: 11.7%;
+}
