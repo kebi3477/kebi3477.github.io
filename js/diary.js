@@ -1,14 +1,15 @@
 const canvas = document.querySelector(".diary--canvas");
 const ctx = canvas.getContext("2d");
 const buttonItemRed = document.querySelector(".button__item--red");
-const buttonItemBlue = document.querySelector(".button__item--blue");
+const buttonItemYellow = document.querySelector(".button__item--yellow");
 const buttonItemGreeen = document.querySelector(".button__item--green");
+const buttonItemBlue = document.querySelector(".button__item--blue");
 const buttonItemBlack = document.querySelector(".button__item--black");
 const buttonItemLight = document.querySelector(".button__item--light");
 const buttonItemRegular = document.querySelector(".button__item--regular");
 const buttonItemBold = document.querySelector(".button__item--bold");
-// const buttonItemWhite = document.querySelector(".button__item--white");
-const buttonItemReset = document.querySelector(".button__item--reset");
+const buttonHome = document.querySelector(".button__home");
+const buttonAgain = document.querySelector(".button__again");
 
 initCanvas(canvas);
 
@@ -16,11 +17,15 @@ buttonItemRed.onclick = () => setStrokeColor("red");
 buttonItemBlue.onclick = () => setStrokeColor("blue");
 buttonItemGreeen.onclick = () => setStrokeColor("green");
 buttonItemBlack.onclick = () => setStrokeColor("#333");
-// buttonItemWhite.onclick = () => setStrokeColor("#fff");
-buttonItemReset.onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+buttonItemYellow.onclick = () => setStrokeColor("yellow");
 buttonItemLight.onclick = () => setStrokeWidth(2);
 buttonItemRegular.onclick = () => setStrokeWidth(6);
 buttonItemBold.onclick = () => setStrokeWidth(10);
+buttonHome.onclick = () => location.href = 'main.html';
+buttonAgain.onclick = () => {
+    ctx.beginPath();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
 
 function setStrokeColor(color) {
     ctx.beginPath();

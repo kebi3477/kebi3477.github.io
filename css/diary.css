@@ -39,52 +39,32 @@
     top: 15.5%;
     touch-action: none;
 }
-.buttons {
-    width: 3rem;
+.buttons__wrap {
+    width: 5rem;
     height: max-content;
     position: absolute;
-    right: 1rem;
-    top: 20%;
+    top: 30%;
+    right: 0;
+}
+.buttons__wrap:nth-child(3) {
+    top: .75rem;
+}
+.buttons__wrap:nth-child(3) > img {
+    width: 4rem;
+    margin-top: .25rem;
+}
+.buttons {
     display: flex;
     flex-flow: column nowrap;
-    padding: 1.5rem;
+    position: relative;
 }
-.buttons > button {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    border: .5rem solid #fff;
+.buttons > img {
     margin-top: .75rem;
 }
-.button__item--red {
-    background-color: red;
-}
-.button__item--blue {
-    background-color: blue;
-}
-.button__item--green {
-    background-color: green;
-}
-.button__item--black {
-    background-color: #333;
-}
-/* .button__item--white {
-    background-color: #fff;
-} */
-.button__item--reset {
-    width: 3rem;
-    height: 3rem;
-    background-color: #fff;
-    margin-top: 2rem;
-}
-.button__item--light {
-    
-}
-
-.button__item--regular {
-}
-.button__item--bold {
+.buttons.color {
+    width: 4rem;
+    right: -1rem;
 }
 .buttons.size {
-    right: 5rem;
+    margin-top: 1rem;
 }

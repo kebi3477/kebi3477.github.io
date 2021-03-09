@@ -1,4 +1,42 @@
+@keyframes fadeOut {
+    0% {
+        visibility: visible;
+        opacity: 1;
+    }
+    100% {
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+.popup-hidden {
+    animation: 1s fadeOut forwards;
+}
+.popup > img {
+    width: 60%;
+}
+.buttons {
+    width: 40%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    margin-top: -4%;
+}
+.buttons > img {
+    width: 45%;
+}
 .main {
-    background-image: url('../images/main.png');
+    background-image: url('../images/background/main_base.png');
     height: 100vh;
+}
+.lock {
+    position: absolute;
+    width: 8%;
+    left: 61.3%;
+    top: 19%;
+}
+.nickname {
+    color: #fff;
+    position: relative;
+    top: 2rem;
+    left: 6rem;
 }
