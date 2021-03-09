@@ -85,7 +85,7 @@
     border-radius: 1rem;
     color: #fff;
     box-sizing: border-box;
-    font-size: .9rem;
+    font-size: 1.4rem;
     outline: none;
 }
 .name::placeholder {
@@ -93,5 +93,5 @@
 }
 .setsave {
     width: 55%;
-    margin-top: 8%;
+    margin-top: 7%;
 }

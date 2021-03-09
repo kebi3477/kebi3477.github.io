@@ -9,9 +9,7 @@ setBtn.onclick = () => {
     const name = document.querySelector(".name");
     localStorage.setItem("nickName", name.value);
     name.value = "";
-    setInterval(() => {
-        loadingText.innerText = loadingText.textContent + ".";
-    }, 100)
+    setInterval(() => loadingText.innerText = loadingText.textContent + ".", 100);
     popup.classList.add("popup-active");
     setTimeout(() => location.href = "main.html", 1000);   
 }

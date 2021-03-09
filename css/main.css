@@ -12,7 +12,7 @@
     animation: 1s fadeOut forwards;
 }
 .popup > img {
-    width: 60%;
+    width: 65%;
 }
 .buttons {
     width: 40%;
@@ -22,7 +22,7 @@
     margin-top: -4%;
 }
 .buttons > img {
-    width: 45%;
+    width: 43%;
 }
 .main {
     background-image: url('../images/background/main_base.png');
