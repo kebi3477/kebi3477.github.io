@@ -42,7 +42,7 @@
     touch-action: none;
 }
 .buttons__wrap {
-    width: 6rem;
+    width: 9%;
     height: max-content;
     position: absolute;
     bottom: 5rem;
