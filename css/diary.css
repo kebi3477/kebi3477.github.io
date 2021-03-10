@@ -42,10 +42,10 @@
     touch-action: none;
 }
 .buttons__wrap {
-    width: 5rem;
+    width: 7rem;
     height: max-content;
     position: absolute;
-    top: 30%;
+    bottom: 9%;
     right: 0;
     display: flex;
     flex-flow: column;
@@ -53,6 +53,7 @@
 }
 .buttons__wrap:nth-child(3) {
     top: .75rem;
+    right: .75rem;
 }
 .buttons__wrap:nth-child(3) > img {
     width: 4rem;
@@ -70,12 +71,12 @@
     transition: 1s;
 }
 .buttons.color {
-    width: 6rem;
+    width: 100%;
 }
 .selected {
     animation: 1s selected forwards;
 }
 .buttons.size {
-    width: 7rem;
+    width: 100%;
     margin-top: 1rem;
 }
