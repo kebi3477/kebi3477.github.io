@@ -10,6 +10,7 @@ const buttonItemRegular = document.querySelector(".button__item--regular");
 const buttonItemBold = document.querySelector(".button__item--bold");
 const buttonHome = document.querySelector(".button__home");
 const buttonAgain = document.querySelector(".button__again");
+let vh = window.innerHeight * 0.01;
 
 initCanvas(canvas);
 
@@ -26,6 +27,7 @@ buttonAgain.onclick = () => {
     ctx.beginPath();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
+document.documentElement.style.setProperty('--vh', `${vh}px`);
 
 function setStrokeColor(color, that=null) {
     ctx.beginPath();
