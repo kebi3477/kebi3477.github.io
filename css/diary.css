@@ -8,6 +8,10 @@
         visibility: hidden;
     }
 }
+@keyframes selected {
+    0% { right: -2rem; }   
+    100% { right: 0; }
+}
 .popup {
     background-color: rgba(0,0,0,.5);
     left: 0;
@@ -43,6 +47,9 @@
     position: absolute;
     top: 30%;
     right: 0;
+    display: flex;
+    flex-flow: column;
+    align-items: flex-end;
 }
 .buttons__wrap:nth-child(3) {
     top: .75rem;
@@ -58,11 +65,17 @@
 }
 .buttons > img {
     margin-top: .75rem;
+    position: relative;
+    right: -2rem;
+    transition: 1s;
 }
 .buttons.color {
-    width: 4rem;
-    right: -1rem;
+    width: 6rem;
+}
+.selected {
+    animation: 1s selected forwards;
 }
 .buttons.size {
+    width: 7rem;
     margin-top: 1rem;
 }

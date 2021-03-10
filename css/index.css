@@ -14,6 +14,16 @@
         transform: rotateZ(360deg);
     }
 }
+@keyframes intro {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
 .loading {
     width: 3rem;
     height: 3rem;
@@ -42,19 +52,31 @@
 }
 .first {
     flex: 1;
-    background-image: url('../images/background/d_first.png');
+    background-image: url('../images/background/first_base.png');
     height: 100vh;
     display: flex;
+    flex-flow: column;
     align-items: center;
     justify-content: center;
+}
+.logo {
+    width: 52%;
+    margin-top: -3rem;
+    animation: 2s intro forwards;
 }
 .start {
     background-color: transparent;
     width: 15rem;
     height: 4.5rem;
-    top: 29.5%;
+    top: 2rem;
     position: relative;
     border: none;
+    background-image: url('../images/button/b_start2.png');
+    animation: 2s intro forwards 2s;
+}
+.intro {
+    opacity: 0;
+    transform: translateY(20px);
 }
 .second {
     width: 50%;

@@ -13,26 +13,35 @@ const buttonAgain = document.querySelector(".button__again");
 
 initCanvas(canvas);
 
-buttonItemRed.onclick = () => setStrokeColor("red");
-buttonItemBlue.onclick = () => setStrokeColor("blue");
-buttonItemGreeen.onclick = () => setStrokeColor("green");
-buttonItemBlack.onclick = () => setStrokeColor("#333");
-buttonItemYellow.onclick = () => setStrokeColor("yellow");
-buttonItemLight.onclick = () => setStrokeWidth(2);
-buttonItemRegular.onclick = () => setStrokeWidth(6);
-buttonItemBold.onclick = () => setStrokeWidth(10);
+buttonItemRed.onclick = function() { setStrokeColor("red", this) };
+buttonItemBlue.onclick = function() { setStrokeColor("blue", this) };
+buttonItemGreeen.onclick = function() { setStrokeColor("green", this) };
+buttonItemBlack.onclick = function() { setStrokeColor("#333", this) };
+buttonItemYellow.onclick = function() { setStrokeColor("yellow", this) };
+buttonItemLight.onclick = function() { setStrokeWidth(2, this) };
+buttonItemRegular.onclick = function() { setStrokeWidth(6, this) };
+buttonItemBold.onclick = function() { setStrokeWidth(10, this) };
 buttonHome.onclick = () => location.href = 'main.html';
 buttonAgain.onclick = () => {
     ctx.beginPath();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-function setStrokeColor(color) {
+function setStrokeColor(color, that=null) {
     ctx.beginPath();
     ctx.strokeStyle = color;
+    resetSelected("color");
+    that.classList.add("selected");
 }
 
-function setStrokeWidth(width) {
+function setStrokeWidth(width, that=null) {
     ctx.beginPath();
     ctx.lineWidth = width;
+    resetSelected("size");
+    that.classList.add("selected");
+}
+
+function resetSelected(type) {
+    const imgs = document.querySelectorAll(`.${type} > img`);
+    imgs.forEach(el => el.classList.remove("selected"));
 }

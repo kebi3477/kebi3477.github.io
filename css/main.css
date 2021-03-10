@@ -28,12 +28,24 @@
     background-image: url('../images/background/main_base.png');
     height: 100vh;
 }
-.lock {
+.clickable {
     position: absolute;
-    width: 8%;
-    left: 61.3%;
+    width: 7%;
+    left: 62%;
     top: 19%;
+    filter: grayscale(1);
+    transition: 1s;
 }
+.lock {
+    pointer-events: none;
+    width: 100%;
+}
+.clickable:hover {
+    filter: grayscale(0);
+}
+/* .lock-circle:hover ~ .lock-empty {
+    fill: #A54E7D;
+} */
 .nickname {
     color: #fff;
     position: relative;

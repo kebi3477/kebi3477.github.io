@@ -1,6 +1,6 @@
 const popup = document.querySelector(".popup");
 const main = document.querySelector(".main");
-const lock = document.querySelector(".lock");
+const clickable = document.querySelector(".clickable");
 const exit = document.querySelector(".exit");
 try {
     const name = localStorage.getItem("nickName");
@@ -9,7 +9,7 @@ try {
     localStorage.setItem("nickName", "");
     setNickname();
 }
-lock.onclick = () => {
+clickable.onclick = () => {
     popup.classList.remove("popup-hidden");
     popup.classList.add("popup-active");
 }

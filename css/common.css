@@ -35,6 +35,7 @@ body {
     justify-content: center;
     visibility: hidden;
     opacity: 0;
+    backdrop-filter: blur(3px);
 }
 .popup-active {
     animation: 1s fadeIn forwards;
