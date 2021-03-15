@@ -1,7 +1,7 @@
 const c005 = localStorage.getItem("c005");
 if(c005) {
     const food = JSON.parse(c005);
-    const filterFood = food.filter(data => data.PRDLST_NM.includes("초코파이"));
+    const filterFood = food.filter(data => data.BAR_CD === "8801117539818");
     console.log(filterFood)
 } else {
     console.log("loading start")

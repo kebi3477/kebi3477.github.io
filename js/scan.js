@@ -79,7 +79,12 @@ function startScanner() {
 
 
     Quagga.onDetected(function (result) {
-        alert("Barcode detected and processed : [" + result.codeResult.code + "]");
+        const code = result.codeResult.code;
+        const foods = JSON.parse(localStorage.getItem("c005"));
+        const searchItem = foods.filter(data => data.BAR_CD == code);
+        alert(JSON.stringify(searchItem));
+        alert(code+1);
+        // alert("Barcode detected and processed : [" + result.codeResult.code + "]");
     });
 }
 
