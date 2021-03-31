@@ -8,9 +8,7 @@
 .popup_second {
     animation-delay: 1.5s;
 }
-.popup_hide {
-    animation: fadeOut 2s forwards;
-}
+
 .check_boxs {
     width: 100%;
     height: 100vh;
@@ -18,32 +16,33 @@
     top: 0;
 }
 .check_box {
-    width: 8rem;
-    height: 8rem;
+    width: 10rem;
+    height: 10rem;
     background-color: #3333;
     position: absolute;
 }
 .check_box:nth-of-type(1) {
-    left: 4rem;
-    top: 5.5rem;
+    left: 9%;
+    top: 47%;
 }
 .check_box:nth-of-type(2) {
-    left: 37rem;
-    top: 15rem;
+    left: 63%;
+    top: 55%;
 }
 .check_box:nth-of-type(3) {
-    left: 22rem;
-    top: 15rem;
+    left: 83%;
+    top: 64%;
 }
 .check_box:nth-of-type(4) {
-    left: 28rem;
-    top: 23rem;
+    left: 73%;
+    top: 34%;
 }
-.mart {
+
+.home {
+    background-image: url('../images/background/10_base.png');
     width: 100%;
     height: 100vh;
-    background-image: url('../images/background/12_base.png');
 }
-.mart--canvas {
-    position: absolute;
+.home > img {
+    width: 100%;
 }

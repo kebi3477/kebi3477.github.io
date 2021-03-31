@@ -1,6 +1,7 @@
 const popup = document.querySelector(".popup");
 const main = document.querySelector(".main");
 const clickable = document.querySelector(".clickable");
+const start = document.querySelector(".start");
 const exit = document.querySelector(".exit");
 try {
     const name = localStorage.getItem("nickName");
@@ -12,6 +13,9 @@ try {
 clickable.onclick = () => {
     popup.classList.remove("popup-hidden");
     popup.classList.add("popup-active");
+}
+start.onclick = () => {
+    window.location = 'read_diary.html';
 }
 exit.onclick = () => {
     popup.classList.remove('popup-active');

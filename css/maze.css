@@ -1,9 +1,41 @@
+.popup {
+    opacity: 1;
+    animation: fadeOut 2s forwards;
+}
+.popup > img {
+    width: 70%;
+}
+.popup_second {
+    animation-delay: 1.5s;
+}
+.top {
+    background-color: #99DDCD;
+}
+.check_boxs {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+}
+.check_box {
+    width: 8rem;
+    height: 8rem;
+    background-color: #3333;
+    position: absolute;
+}
+.check_box:nth-of-type(1) {
+    left: 10.5rem;
+    top: 11.5rem;
+}
+.check_box:nth-of-type(2) {
+    left: 43rem;
+    top: 25rem;
+}
 .maze {
     width: 100%;
     height: 100vh;
-    background-image: url('../images/maze.png');
+    background-image: url('../images/background/11_base.png');
 }
 .maze--canvas {
     position: absolute;
-    top: 11.5%;
 }

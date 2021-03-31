@@ -1,0 +1,46 @@
+.popup {
+    opacity: 1;
+    animation: fadeOut 2s forwards;
+}
+.popup > img {
+    width: 70%;
+}
+.popup > .text {
+    position: absolute;
+    font-size: 5rem;
+    font-family: 'Nanum KoKoCe';
+}
+.diary {
+    height: 100vh;
+    background-image: url('../images/background/9_base.png');
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.diary > img {
+    position: absolute;
+    width: 62%;
+    margin-top: -2%;
+    margin-left: -7%;
+}
+.diary > .diary_pop {
+    visibility: hidden;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+    animation-delay: 2.5s;
+    margin-right: 1%;
+}
+.next {
+    position: absolute;
+    right: 22%;
+    bottom: 12%;
+    width: 8%;
+    visibility: hidden;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+    animation-delay: 4s;
+}
+.next > img {
+    width: 100%;
+}

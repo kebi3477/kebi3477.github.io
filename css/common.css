@@ -8,6 +8,26 @@
         visibility: visible;
     }
 }
+@keyframes fadeOut {
+    50% {
+        visibility: visible;
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+@keyframes hint {
+    0%, 100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+    30%, 60% {
+        visibility: visible;
+        opacity: 1;
+    }
+}
 * {
     margin: 0;
     padding: 0;
@@ -16,13 +36,13 @@ body {
     overflow: hidden;
     user-select: none;
 }
-
 .background {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center center;
     position: relative;
 }
+/* 팝업 */
 .popup {
     width: 100%;
     height: 100vh;
@@ -39,4 +59,59 @@ body {
 }
 .popup-active {
     animation: 1s fadeIn forwards;
+}
+/* 힌트 */
+.hint-active {
+    animation: hint 5s forwards;
+}
+/* 오른쪽 하단 버튼 */
+.after_button {
+    position: absolute;
+    z-index: 1;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    width: 8%;
+    visibility: hidden;
+    opacity: 0;
+}
+.after_button_active {
+    animation: fadeIn 2s forwards;
+}
+.after_button > img {
+    width: 100%;
+}
+/* 상단 바 */
+.top {
+    width: 100%;
+    height: 12vh;
+    background-color: #FED55D;
+    top: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    position: absolute;
+    z-index: 4;
+}
+.top img {
+    width: 4rem;
+}
+.top > img {
+    margin-left: 1.5rem;
+}
+.buttons {
+    margin-right: 1.5rem;
+}
+/* 체크 박스 */
+.check_boxs {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+}
+.check_box {
+    width: 8rem;
+    height: 8rem;
+    background-color: #3333;
+    position: absolute;
 }

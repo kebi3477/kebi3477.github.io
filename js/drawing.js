@@ -87,3 +87,14 @@ function initCanvas(canvas) {
         }
     }
 }
+//DOM 위치로 마우스 지나가면 true 반환
+function checkByDom(dom) {
+    const xStart = dom.offsetLeft;
+    const xEnd = dom.offsetLeft + dom.offsetWidth;
+    const yStart = dom.offsetTop;
+    const yEnd = dom.offsetTop + dom.offsetHeight;
+
+    if(mousePos.x > xStart && mousePos.y > yStart && mousePos.x < xEnd && mousePos.y < yEnd) {
+        return true;
+    }
+}

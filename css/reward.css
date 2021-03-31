@@ -1,3 +1,10 @@
+.timeout {
+    position: absolute;
+    font-size: 4rem;
+    z-index: 1;
+    left: 52%;
+    top: 40%;
+}
 .reward {
     background-image: url('../images/reward.png');
     height: 100vh;

@@ -1,27 +1,34 @@
 const canvas = document.querySelector(".mart--canvas");
 initCanvas(canvas)
-const items = {
-    item1: false,
-    item2: false,
-    item3: false,
-    item4: false
-}
+const items = [false, false, false, false];
+const checkBoxs = document.querySelectorAll(".check_box");
+const button = document.querySelector(".after_button");
+const popupSecond = document.querySelector(".popup_second");
+const checklist = document.querySelector(".checklist");
+const nowTime = new Date().getTime();
+const timeOut = localStorage.getItem("timeout");
+
 canvas.addEventListener("touchmove", function(e) {
-    !items.item1 && isCheck(60, 30, 270, 160, mousePos) ? items.item1 = true : "";
-    !items.item2 && isCheck(490, 200, 610, 350, mousePos) ? items.item2 = true : "";
-    !items.item3 && isCheck(750, 200, 980, 350, mousePos) ? items.item3 = true : "";
-    !items.item4 && isCheck(560, 400, 830, 550, mousePos) ? items.item4 = true : "";
-    localStorage.setItem("items", JSON.stringify(items));
+    checkBoxs.forEach((box, index) => {
+        !items[index] && checkByDom(box) ? items[index] = true : "";
+    })
 })
 canvas.addEventListener("touchend", function() {
-    if(items.item1 && items.item2 && items.item3 && items.item4) {
-        alert("장보기 완료!");
-        window.location = './diary.html';
+    if(items.filter(data => data).length === items.length) {
+        //alert("장보기 완료");
+        button.classList.add("after_button_active");
+        button.onclick = () => {
+            const newTime = new Date().getTime();
+            const diffSeconds = (newTime - nowTime) / (1000);
+
+            localStorage.setItem("timeout", parseInt(timeOut)+diffSeconds);
+            location.href = 'pay.html';
+        }
     }
 })
-
-function isCheck(xStart, yStart, xEnd, yEnd, mousePos) {
-    if(mousePos.x > xStart && mousePos.y > yStart && mousePos.x < xEnd && mousePos.y < yEnd) {
-        return true;
-    }
-}
+checklist.addEventListener("click", function() {
+    popupSecond.style.animation = 'fadeIn 2s forwards';
+    setTimeout(() => {
+        popupSecond.style.animation = 'fadeOut 2s forwards';
+    }, 2000)
+})

@@ -1,4 +1,4 @@
-@keyframes fadeOut {
+@keyframes fadeOut2 {
     0% {
         visibility: visible;
         opacity: 1;
@@ -9,7 +9,7 @@
     }
 }
 .popup-hidden {
-    animation: 1s fadeOut forwards;
+    animation: 1s fadeOut2 forwards;
 }
 .popup > img {
     width: 65%;
