@@ -17,21 +17,21 @@ setBtn.onclick = () => {
     setTimeout(() => location.href = "main.html", 1000);   
 }
 
-const appendText = async (textArr) => {
-    for(let txt of textArr) {
-        await delay()
-        .then(() => {
-            if(txt === '/') {
-                typing.textContent = '';
-            } else {
-                typing.innerHTML = typing.textContent + txt
-            }
-        });
-    }
-}
+// const appendText = async (textArr) => {
+//     for(let txt of textArr) {
+//         await delay()
+//         .then(() => {
+//             if(txt === '/') {
+//                 typing.textContent = '';
+//             } else {
+//                 typing.innerHTML = typing.textContent + txt
+//             }
+//         });
+//     }
+// }
 
-const delay = () => {
-    return new Promise(resolve => setTimeout(resolve, 100))
-}  
+// const delay = () => {
+//     return new Promise(resolve => setTimeout(resolve, 100))
+// }  
 
-appendText(textArr);
+// appendText(textArr);
