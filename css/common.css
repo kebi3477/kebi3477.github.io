@@ -28,6 +28,10 @@
         opacity: 1;
     }
 }
+@font-face {
+    font-family: koko;
+    src: url('../font/koko.ttf');
+}
 * {
     margin: 0;
     padding: 0;
@@ -112,6 +116,6 @@ body {
 .check_box {
     width: 8rem;
     height: 8rem;
-    background-color: #3333;
+    /* background-color: #3333; */
     position: absolute;
 }

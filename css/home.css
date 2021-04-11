@@ -15,12 +15,6 @@
     position: absolute;
     top: 0;
 }
-.check_box {
-    width: 10rem;
-    height: 10rem;
-    background-color: #3333;
-    position: absolute;
-}
 .check_box:nth-of-type(1) {
     left: 9%;
     top: 47%;

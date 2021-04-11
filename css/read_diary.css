@@ -8,7 +8,8 @@
 .popup > .text {
     position: absolute;
     font-size: 5rem;
-    font-family: 'Nanum KoKoCe';
+    font-family: 'koko';
+    text-align: center;
 }
 .diary {
     height: 100vh;
@@ -21,8 +22,8 @@
 .diary > img {
     position: absolute;
     width: 62%;
-    margin-top: -2%;
-    margin-left: -7%;
+    margin-top: 1%;
+    margin-left: -1%;
 }
 .diary > .diary_pop {
     visibility: hidden;
