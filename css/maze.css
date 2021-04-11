@@ -1,12 +1,13 @@
 .popup {
     opacity: 1;
     animation: fadeOut 4s forwards;
+    animation-delay: 5s;
 }
 .popup > img {
     width: 70%;
 }
 .popup_second {
-    animation-delay: 3.5s;
+    animation-delay: 8.5s;
 }
 .top {
     background-color: #99DDCD;
@@ -39,4 +40,14 @@
 }
 .maze--canvas {
     position: absolute;
+}
+.video-wrap {
+    width: 100%;
+    height: 100vh;
+    background-color: #fff;
+    position: absolute;
+    top: 0;
+    z-index: 10;
+    animation: fadeOut 2s forwards;
+    animation-delay: 2.5s;
 }

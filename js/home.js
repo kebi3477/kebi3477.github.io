@@ -23,7 +23,7 @@ canvas.addEventListener("touchend", function() {
             
             timeOut.game1 = diffSeconds;
             localStorage.setItem("timeout", JSON.stringify(timeOut));
-            location.href = 'maze.html';
+            location.href = 'v-home.html';
         }
     }
 })
