@@ -10,7 +10,8 @@ canvas.addEventListener("touchmove", function(e) {
     cnt++;
 })
 canvas.addEventListener("touchend", function() {
-    if(cnt > 250) {
+    
+    if(cnt > 150) {
         // alert("계산 성공!");
         button.classList.add("after_button_active");
         button.onclick = () => {

@@ -43,6 +43,7 @@
     display: flex;
     flex-flow: column nowrap;
     position: relative;
+    margin-right: 0;
 }
 .buttons > img {
     margin-top: .75rem;
@@ -53,10 +54,16 @@
 .buttons.color {
     width: 100%;
 }
+.buttons.color > img {
+    height: 3rem;
+}
 .selected {
     animation: 1s selected forwards;
 }
 .buttons.size {
     width: 100%;
     margin-top: 1rem;
+}
+.buttons.size > img {
+    height: 1.5rem;
 }

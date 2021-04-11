@@ -1,12 +1,12 @@
 .popup {
     opacity: 1;
-    animation: fadeOut 2s forwards;
+    animation: fadeOut 4s forwards;
 }
 .popup > img {
     width: 70%;
 }
 .popup_second {
-    animation-delay: 1.5s;
+    animation-delay: 3.5s;
 }
 .popup_hide {
     animation: fadeOut 2s forwards;

@@ -21,9 +21,9 @@
 }
 .diary > img {
     position: absolute;
-    width: 62%;
-    margin-top: 1%;
-    margin-left: -1%;
+    width: 63%;
+    margin-top: -2%;
+    margin-left: -5%;
 }
 .diary > .diary_pop {
     visibility: hidden;
