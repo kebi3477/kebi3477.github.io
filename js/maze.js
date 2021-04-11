@@ -4,7 +4,7 @@ const afterButton = document.querySelector(".after_button");
 const popupSecond = document.querySelector(".popup_second")
 const checklist = document.querySelector(".checklist");
 const nowTime = new Date().getTime();
-const timeOut = localStorage.getItem("timeout");
+const timeOut = JSON.parse(localStorage.getItem("timeout"));
 let items = [false, false];
 
 initCanvas(canvas);
@@ -19,8 +19,9 @@ canvas.addEventListener("touchend", function(e) {
         afterButton.onclick = () => {
             const newTime = new Date().getTime();
             const diffSeconds = (newTime - nowTime) / (1000);
-
-            localStorage.setItem("timeout", parseInt(timeOut)+diffSeconds);
+            
+            timeOut.game2 = diffSeconds;
+            localStorage.setItem("timeout", JSON.stringify(timeOut));
             location.href = 'mart.html';
         }
     }

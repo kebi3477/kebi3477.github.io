@@ -3,9 +3,8 @@ const ctx = canvas.getContext("2d");
 initCanvas(canvas);
 const payButton = document.querySelector(".pay_button");
 const button = document.querySelector(".after_button");
-const again = document.querySelector('.again');
 const nowTime = new Date().getTime();
-const timeOut = localStorage.getItem("timeout");
+const timeOut = JSON.parse(localStorage.getItem("timeout"));
 let cnt = 0;
 
 canvas.addEventListener("touchmove", function(e) {
@@ -19,7 +18,8 @@ canvas.addEventListener("touchend", function() {
             const newTime = new Date().getTime();
             const diffSeconds = (newTime - nowTime) / (1000);
 
-            localStorage.setItem("timeout", parseInt(timeOut)+diffSeconds);
+            timeOut.game4 = diffSeconds;
+            localStorage.setItem("timeout", JSON.stringify(timeOut));
             location.href = 'invite.html';
         }
         cnt = 0;
@@ -27,8 +27,4 @@ canvas.addEventListener("touchend", function() {
 })
 payButton.addEventListener("click", function() {
     this.parentElement.classList.remove("popup_second");
-})
-again.addEventListener('click', function() {
-    ctx.beginPath();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 })

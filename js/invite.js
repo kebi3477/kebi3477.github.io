@@ -6,12 +6,13 @@ const items = [false, false, false];
 const checkBoxs = document.querySelectorAll(".check_box");
 const button = document.querySelector(".after_button");
 const nowTime = new Date().getTime();
-const timeOut = localStorage.getItem("timeout");
+const timeOut = JSON.parse(localStorage.getItem("timeout"));
 
 initCanvas(canvas);
 setTimeout(() => invite.style.backgroundImage = "url(images/background/15_after_v1.png)", 3500)
 hintBtn.addEventListener("click", function() {
     hint.classList.add("hint-active");
+    setTimeout(() => hint.classList.remove('hint-active'), 4000);
 })
 
 canvas.addEventListener("touchmove", function(e) {
@@ -26,7 +27,8 @@ canvas.addEventListener("touchend", function() {
             const newTime = new Date().getTime();
             const diffSeconds = (newTime - nowTime) / (1000);
 
-            localStorage.setItem("timeout", parseInt(timeOut)+diffSeconds);
+            timeOut.game5 = diffSeconds;
+            localStorage.setItem("timeout", JSON.stringify(timeOut));
             location.href = 'reward.html';
         }
     }
