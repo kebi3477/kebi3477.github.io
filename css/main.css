@@ -23,7 +23,7 @@
 }
 .buttons > img {
     width: 47%;
-    height: 4rem;
+    height: 100%;
 }
 .main {
     background-image: url('../images/background/main_base.png');
