@@ -1,6 +1,6 @@
 .popup:nth-of-type(1) {
     opacity: 1;
-    animation: fadeOut 2s forwards;
+    animation: fadeOut 4s forwards;
 }
 .popup > img {
     width: 70%;
@@ -43,5 +43,5 @@
 .after_button {
     width: 24%;
     left: 37%;
-    top: 14%;
+    top: 13%;
 }

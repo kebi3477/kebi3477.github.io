@@ -9,7 +9,7 @@ const nowTime = new Date().getTime();
 const timeOut = localStorage.getItem("timeout");
 
 initCanvas(canvas);
-setTimeout(() => invite.style.backgroundImage = "url(images/background/15_after_v1.png)", 1500)
+setTimeout(() => invite.style.backgroundImage = "url(images/background/15_after_v1.png)", 3500)
 hintBtn.addEventListener("click", function() {
     hint.classList.add("hint-active");
 })
