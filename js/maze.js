@@ -8,9 +8,6 @@ const timeOut = JSON.parse(localStorage.getItem("timeout"));
 let items = [false, false];
 
 initCanvas(canvas);
-setTimeout(() => {
-    // location.href = 'maze.html';
-}, 3000)
 canvas.addEventListener("touchstart", function(e) {
     checkByDom(checkBoxs[0]) ? items[0] = true : "";    
 })
