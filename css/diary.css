@@ -17,8 +17,8 @@
 .diary--canvas {
     margin: 0 auto;
     position: absolute;
-    left: 12.7%;
-    top: 15.5%;
+    /* left: 12.7%; */
+    /* top: 12.5%; */
     touch-action: none;
 }
 .buttons__wrap {
