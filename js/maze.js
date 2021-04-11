@@ -13,9 +13,6 @@ canvas.addEventListener("touchstart", function(e) {
 })
 canvas.addEventListener("touchend", function(e) {
     checkByDom(checkBoxs[1]) ? items[1] = true : "";    
-    console.log(checkBoxs[1].offsetLeft, checkBoxs[1].offsetTop, mousePos);
-    console.log(checkBoxs[1].offsetLeft+checkBoxs[1].offsetWidth, checkBoxs[1].offsetTop+checkBoxs[1].offsetHeight, mousePos);
-    console.log(items);
     if(items[0] && items[1]) {
         // alert("미로 성공!");
         afterButton.classList.add("after_button_active");
@@ -26,8 +23,6 @@ canvas.addEventListener("touchend", function(e) {
             localStorage.setItem("timeout", parseInt(timeOut)+diffSeconds);
             location.href = 'mart.html';
         }
-    } else {
-        items = [false, false];
     }
 })
 checklist.addEventListener("click", function() {

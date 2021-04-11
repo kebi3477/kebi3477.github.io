@@ -30,3 +30,11 @@
 .pay--canvas {
     position: absolute;
 }
+
+img.again {
+    width: 4rem;
+    position: absolute;
+    z-index: 1;
+    left: 82.5%;
+    top: 15%;
+}
