@@ -50,4 +50,7 @@
     z-index: 10;
     animation: fadeOut 2s forwards;
     animation-delay: 3.5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
