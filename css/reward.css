@@ -28,11 +28,11 @@
     position: absolute;
     z-index: 3;
     left: 22%;
-    top: 34%;
+    top: 36%;
     text-align: right;
 }
 .timeout-item {
-    padding: 6.7%;
+    padding: 7% 0;
     font-size: 1.5rem;
     color: #6b1b00;
 }
