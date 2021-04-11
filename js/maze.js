@@ -27,8 +27,6 @@ canvas.addEventListener("touchend", function(e) {
     }
 })
 checklist.addEventListener("click", function() {
-    popupSecond.style.animation = 'fadeIn 2s forwards';
-    setTimeout(() => {
-        popupSecond.style.animation = 'fadeOut 2s forwards';
-    }, 2000)
+    popupSecond.style.animation = 'hint 8s forwards';
+    setTimeout(() => popupSecond.style.animation = '', 8000);
 })

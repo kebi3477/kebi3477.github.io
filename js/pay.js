@@ -2,6 +2,8 @@ const canvas = document.querySelector(".pay--canvas");
 const ctx = canvas.getContext("2d");
 initCanvas(canvas);
 const payButton = document.querySelector(".pay_button");
+const popupSecond = document.querySelector(".popup_second")
+const checklist = document.querySelector(".checklist");
 const button = document.querySelector(".after_button");
 const nowTime = new Date().getTime();
 const timeOut = JSON.parse(localStorage.getItem("timeout"));
@@ -27,4 +29,9 @@ canvas.addEventListener("touchend", function() {
 })
 payButton.addEventListener("click", function() {
     this.parentElement.classList.remove("popup_second");
+    this.remove();
+})
+checklist.addEventListener("click", function() {
+    popupSecond.style.animation = 'hint 8s forwards';
+    setTimeout(() => popupSecond.style.animation = '', 8000);
 })

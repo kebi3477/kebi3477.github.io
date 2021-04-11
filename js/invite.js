@@ -11,8 +11,8 @@ const timeOut = JSON.parse(localStorage.getItem("timeout"));
 initCanvas(canvas);
 setTimeout(() => invite.style.backgroundImage = "url(images/background/15_after_v1.png)", 3500)
 hintBtn.addEventListener("click", function() {
-    hint.classList.add("hint-active");
-    setTimeout(() => hint.classList.remove('hint-active'), 4000);
+    hint.style.animation = 'hint 8s forwards';
+    setTimeout(() => hint.style.animation = '', 8000);
 })
 
 canvas.addEventListener("touchmove", function(e) {
