@@ -7,6 +7,7 @@ const popupSecond = document.querySelector(".popup_second")
 const checklist = document.querySelector(".checklist");
 const nowTime = new Date().getTime();
 const timeOut = JSON.parse(localStorage.getItem("timeout"));
+const hintPopup = document.querySelector('.hint-popup');
 
 canvas.addEventListener("touchmove", function(e) {
     checkBoxs.forEach((box, index) => {
@@ -31,3 +32,12 @@ checklist.addEventListener("click", function() {
     popupSecond.style.animation = 'hint 8s forwards';
     setTimeout(() => popupSecond.style.animation = '', 8000);
 })
+
+setTimeout(() => {
+    hintPopup.style.visibility = 'visible';
+    hintPopup.style.opacity = 1;    
+}, 12000);
+setTimeout(() => {
+    hintPopup.style.visibility = 'hidden';
+    hintPopup.style.opacity = 0;    
+}, 16000);

@@ -133,3 +133,14 @@ body {
     align-items: center;
     justify-content: center;
 }
+/* 힌트 */
+.hint-popup {
+    position: absolute;
+    z-index: 5;
+    right: 13%;
+    top: 7%;
+    height: 8rem;
+    opacity: 0;
+    transition: 2s;
+    visibility: hidden;
+}
