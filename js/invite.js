@@ -7,6 +7,7 @@ const checkBoxs = document.querySelectorAll(".check_box");
 const button = document.querySelector(".after_button");
 const nowTime = new Date().getTime();
 const timeOut = JSON.parse(localStorage.getItem("timeout"));
+const hintPopup = document.querySelector('.hint-popup');
 
 initCanvas(canvas);
 setTimeout(() => invite.style.backgroundImage = "url(images/background/15_after_v1.png)", 3500)
@@ -34,3 +35,11 @@ canvas.addEventListener("touchend", function() {
         }
     }
 })
+setTimeout(() => {
+    hintPopup.style.visibility = 'visible';
+    hintPopup.style.opacity = 1;    
+}, 8000);
+setTimeout(() => {
+    hintPopup.style.visibility = 'hidden';
+    hintPopup.style.opacity = 0;    
+}, 12000);

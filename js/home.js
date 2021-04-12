@@ -36,8 +36,8 @@ checklist.addEventListener("click", function() {
 setTimeout(() => {
     hintPopup.style.visibility = 'visible';
     hintPopup.style.opacity = 1;    
-}, 12000);
+}, 10000);
 setTimeout(() => {
     hintPopup.style.visibility = 'hidden';
     hintPopup.style.opacity = 0;    
-}, 16000);
+}, 14000);
