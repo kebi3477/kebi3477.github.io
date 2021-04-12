@@ -16,6 +16,7 @@ canvas.addEventListener("touchend", function(e) {
     if(items[0] && items[1]) {
         // alert("미로 성공!");
         afterButton.classList.add("after_button_active");
+        play();
         afterButton.onclick = () => {
             const newTime = new Date().getTime();
             const diffSeconds = (newTime - nowTime) / (1000);

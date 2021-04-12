@@ -17,10 +17,10 @@ canvas.addEventListener("touchend", function() {
     if(items.filter(data => data).length === items.length) {
         // alert("장보기 완료");
         button.classList.add("after_button_active");
+        play();
         button.onclick = () => {
             const newTime = new Date().getTime();
             const diffSeconds = (newTime - nowTime) / (1000);
-            
             timeOut.game1 = diffSeconds;
             localStorage.setItem("timeout", JSON.stringify(timeOut));
             location.href = 'maze.html';

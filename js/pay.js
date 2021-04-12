@@ -16,6 +16,7 @@ canvas.addEventListener("touchend", function() {
     if(cnt > 50) {
         // alert("계산 성공!");
         button.classList.add("after_button_active");
+        play();
         button.onclick = () => {
             const newTime = new Date().getTime();
             const diffSeconds = (newTime - nowTime) / (1000);

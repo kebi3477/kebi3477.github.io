@@ -1,6 +1,7 @@
 let drawing = false;
 let mousePos = { x:0, y:0 };
 let lastPos = mousePos;
+let playFlag = false;
 function initCanvas(canvas) {
     const ctx = canvas.getContext("2d");
     // 펜 사이즈 및 색
@@ -98,3 +99,14 @@ function checkByDom(dom) {
         return true;
     }
 }
+// 띠링
+function play() { 
+    const audio = document.querySelector('.audio');
+    if (audio.paused && !playFlag) { 
+        audio.play();
+        playFlag = true;
+    } else { 
+        audio.pause(); 
+        audio.currentTime = 0 
+    } 
+} 
