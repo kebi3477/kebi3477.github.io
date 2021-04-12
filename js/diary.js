@@ -33,9 +33,9 @@ document.documentElement.style.setProperty('--vh', `${vh}px`);
 saveDiary.onclick = () => {
     html2canvas(document.querySelector(".diary"))
     .then(function (canvas2) {
-        const dataURL = canvas2.toDataURL('image/png');
         const aTag = document.createElement('a');
-        
+        let dataURL = canvas2.toDataURL('image/png');
+
         dataURL = dataURL.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
         dataURL = dataURL.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
         aTag.download = 'myDiary.png';
