@@ -10,6 +10,7 @@ const buttonItemRegular = document.querySelector(".button__item--regular");
 const buttonItemBold = document.querySelector(".button__item--bold");
 const buttonHome = document.querySelector(".button__home");
 const buttonAgain = document.querySelector(".button__again");
+const saveDiary = document.querySelector('.save-diary');
 let vh = window.innerHeight * 0.01;
 
 initCanvas(canvas);
@@ -28,6 +29,17 @@ buttonAgain.onclick = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+saveDiary.onclick = () => {
+    const aTag = document.createElement('a');
+    let dataURL = canvas.toDataURL('image/png');
+
+    dataURL = dataURL.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
+    dataURL = dataURL.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
+    aTag.download = 'myDiary.png';
+    aTag.href = dataURL;
+    aTag.click();
+}
 
 function setStrokeColor(color, that=null) {
     ctx.beginPath();

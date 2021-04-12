@@ -34,7 +34,7 @@
     width: 7%;
     left: 62%;
     top: 18%;
-    filter: grayscale(1);
+    /* filter: grayscale(1); */
     transition: 1s;
 }
 .lock {
@@ -42,7 +42,7 @@
     width: 100%;
 }
 .clickable:hover {
-    filter: grayscale(0);
+    /* filter: grayscale(0); */
 }
 /* .lock-circle:hover ~ .lock-empty {
     fill: #A54E7D;

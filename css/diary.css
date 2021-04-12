@@ -67,3 +67,11 @@
 .buttons.size > img {
     height: 1.5rem;
 }
+.save-diary {
+    position: absolute;
+    top: 82%;
+    left: 39%;
+}
+.save-diary > img {
+    height: 4rem;
+}

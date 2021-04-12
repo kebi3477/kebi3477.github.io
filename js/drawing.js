@@ -105,8 +105,8 @@ function play() {
     if (audio.paused && !playFlag) { 
         audio.play();
         playFlag = true;
-    }
-    //  else { 
+    } 
+    // else { 
     //     audio.pause(); 
     //     audio.currentTime = 0 
     // } 
