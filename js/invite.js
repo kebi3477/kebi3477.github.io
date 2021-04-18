@@ -15,7 +15,7 @@ canvas.addEventListener("touchmove", function(e) {
     })
 })
 canvas.addEventListener("touchend", function() {
-    if(items.filter(data => data).length === items.length) {
+    if(items.filter(data => data.length === items.length)) {
         button.classList.add("after_button_active");
         button.onclick = () => {
             const newTime = new Date().getTime();
