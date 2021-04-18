@@ -99,15 +99,3 @@ function checkByDom(dom) {
         return true;
     }
 }
-// 띠링
-function play() { 
-    const audio = document.querySelector('.audio');
-    if (audio.paused && !playFlag) { 
-        audio.play();
-        playFlag = true;
-    } 
-    // else { 
-    //     audio.pause(); 
-    //     audio.currentTime = 0 
-    // } 
-} 

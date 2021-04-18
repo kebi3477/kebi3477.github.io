@@ -1,6 +1,9 @@
 .popup {
     opacity: 1;
-    animation: fadeOut 2s forwards;
+    visibility: visible;
+}
+.popup.fadeout {
+    animation: fadeOut 1s forwards;
 }
 .popup > img {
     width: 70%;

@@ -3,11 +3,8 @@ initCanvas(canvas)
 const items = [false, false, false, false];
 const checkBoxs = document.querySelectorAll(".check_box");
 const button = document.querySelector(".after_button");
-const popupSecond = document.querySelector(".popup_second");
-const checklist = document.querySelector(".checklist");
 const nowTime = new Date().getTime();
 const timeOut = JSON.parse(localStorage.getItem("timeout"));
-const hintPopup = document.querySelector('.hint-popup');
 
 canvas.addEventListener("touchmove", function(e) {
     checkBoxs.forEach((box, index) => {
@@ -16,9 +13,7 @@ canvas.addEventListener("touchmove", function(e) {
 })
 canvas.addEventListener("touchend", function() {
     if(items.filter(data => data).length === items.length) {
-        //alert("장보기 완료");
         button.classList.add("after_button_active");
-        play();
         button.onclick = () => {
             const newTime = new Date().getTime();
             const diffSeconds = (newTime - nowTime) / (1000);
@@ -29,15 +24,3 @@ canvas.addEventListener("touchend", function() {
         }
     }
 })
-checklist.addEventListener("click", function() {
-    popupSecond.style.animation = 'hint 8s forwards';
-    setTimeout(() => popupSecond.style.animation = '', 8000);
-})
-setTimeout(() => {
-    hintPopup.style.visibility = 'visible';
-    hintPopup.style.opacity = 1;    
-}, 12000);
-setTimeout(() => {
-    hintPopup.style.visibility = 'hidden';
-    hintPopup.style.opacity = 0;    
-}, 16000);

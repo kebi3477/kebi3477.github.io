@@ -9,23 +9,13 @@
     }
 }
 @keyframes fadeOut {
-    50% {
+    0% {
         visibility: visible;
         opacity: 1;
     }
     100% {
         opacity: 0;
         visibility: hidden;
-    }
-}
-@keyframes hint {
-    0%, 100% {
-        opacity: 0;
-        visibility: hidden;
-    }
-    30%, 60% {
-        visibility: visible;
-        opacity: 1;
     }
 }
 @font-face {
@@ -57,12 +47,24 @@ body {
     flex-flow: column wrap;
     align-items: center;
     justify-content: center;
-    visibility: hidden;
-    opacity: 0;
+    visibility: visible;
+    opacity: 1;
     backdrop-filter: blur(3px);
+    z-index: 10;
+}
+.popup > img {
+    width: 70%;
 }
 .popup-active {
     animation: 1s fadeIn forwards;
+}
+.popup.fadeout {
+    animation: fadeOut 1s forwards;
+}
+.popup_second {
+    z-index: 9;
+    opacity: 0;
+    visibility: hidden;
 }
 /* 힌트 */
 .hint-active {
