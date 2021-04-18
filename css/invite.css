@@ -32,8 +32,15 @@
     top: 17rem;
 }
 
-.after_button {
+.send_button {
     width: 24%;
     left: 37%;
     top: 13%;
+    position: absolute;
+    z-index: 3;
+    opacity: 0;
+    visibility: hidden;
+}
+.send_button > img {
+    width: 100%;
 }

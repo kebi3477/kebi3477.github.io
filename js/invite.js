@@ -2,7 +2,7 @@ const invite = document.querySelector(".invite");
 const canvas = document.querySelector("canvas");
 const items = [false, false, false];
 const checkBoxs = document.querySelectorAll(".check_box");
-const button = document.querySelector(".after_button");
+const button = document.querySelector(".send_button");
 const nowTime = new Date().getTime();
 const timeOut = JSON.parse(localStorage.getItem("timeout"));
 
@@ -15,7 +15,7 @@ canvas.addEventListener("touchmove", function(e) {
     })
 })
 canvas.addEventListener("touchend", function() {
-    if(items.filter(data => data.length === items.length)) {
+    if(items.filter(data => data).length === items.length) {
         button.classList.add("after_button_active");
         button.onclick = () => {
             const newTime = new Date().getTime();
