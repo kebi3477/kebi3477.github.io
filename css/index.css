@@ -1,3 +1,13 @@
+@keyframes intro {
+    from {
+        opacity: 0;
+        transform: translate(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0);
+    }
+}
 body {
     width: 100%;
     height: 100vh;
@@ -7,6 +17,7 @@ body {
     width: 100%;
     height: 100%;
     background-image: url('../images/background.jpg');
+    background-size: 105%;
 }
 .bg__wrap {
     position: relative;
@@ -15,6 +26,7 @@ body {
     z-index: 2;
     display: grid;
     gap: 1rem;
+    animation: intro 1s ease-out;
 }
 .bg__text {
     color: #fff;
@@ -38,6 +50,13 @@ body {
     height: 30px;
     border-radius: 1rem;
     background-color: #fff;
+    border: 3px solid #fff;
+}
+.github {
+    background-image: url('../images/github.png');
+}
+.insta {
+    background-image: url('../images/instagram.png');
 }
 .bg--black {
     width: 100%;
@@ -53,12 +72,17 @@ body {
     left: 0;
 }
 .hashtag__item {
+    width: max-content;
     font-size: 7rem;
     color: #fff;
     opacity: .3;
     font-weight: 700;
     transform: translate(120px);
     z-index: 1;
-    pointer-events: none;
-    position: relative;
+    position: absolute;
+    cursor: default;
+    user-select: none;
+}
+.hashtag__item:hover {
+    opacity: 1;
 }
