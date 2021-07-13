@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0 ,user-scalable=no">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/diary.css">
+    <title>Dear My Diary</title>
+</head>
+<body onselectstart="return false" ondragstart="return false" ondblclick="false">
+    <div class="popup">
+        <img src="images/diary_popup.png" >
+    </div>
+    <div class="diary background">
+        <canvas class="diary--canvas" width="1000" height="700">
+        </canvas>
+    </div>
+    <div class="buttons__wrap">
+        <img src="images/diary/b_home.png" alt="" class="button__home">
+        <img src="images/diary/b_again.png" alt="" class="button__again">
+    </div>
+    <div class="buttons__wrap">
+        <div class="buttons color">
+            <img src="images/diary/r_red.png" alt="diary-button" class="button__item--red">
+            <img src="images/diary/r_yellow.png" alt="diary-button" class="button__item--yellow">
+            <img src="images/diary/r_green.png" alt="diary-button" class="button__item--green">
+            <img src="images/diary/r_blue.png" alt="diary-button" class="button__item--blue">
+            <img src="images/diary/r_black.png" alt="diary-button" class="button__item--black selected">
+        </div>
+        <div class="buttons size">
+            <img src="images/diary/r_right.png" alt="diary-button" class="button__item--light selected">
+            <img src="images/diary/r_middle.png" alt="diary-button" class="button__item--regular">
+            <img src="images/diary/r_bold.png" alt="diary-button" class="button__item--bold">   
+        </div>
+    </div>
+    <div class="save-diary">
+        <img src="images/button/save_diary.png" alt="">
+    </div>
+    <script type="text/javascript" src="./js/drawing.js"></script>
+    <script type="text/javascript" src="./js/diary.js"></script>
+</body>
+</html>

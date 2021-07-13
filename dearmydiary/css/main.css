@@ -1,0 +1,52 @@
+@keyframes fadeOut2 {
+    0% {
+        visibility: visible;
+        opacity: 1;
+    }
+    100% {
+        visibility: hidden;
+        opacity: 0;
+    }
+}
+.popup-hidden {
+    animation: 1s fadeOut2 forwards;
+}
+.popup {
+    opacity: 0;
+    visibility: hidden;
+}
+.popup > img {
+    width: 65%;
+}
+.buttons {
+    width: 40%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    margin-top: -4%;
+}
+.buttons > img {
+    width: 47%;
+    height: 100%;
+}
+.main {
+    background-image: url('../images/background/main_base.png');
+    height: 100vh;
+}
+.clickable {
+    position: absolute;
+    width: 7%;
+    left: 62%;
+    top: 18%;
+    transition: 1s;
+}
+.lock {
+    pointer-events: none;
+    width: 100%;
+}
+.nickname {
+    color: #fff;
+    position: relative;
+    top: 2rem;
+    left: 6rem;
+}

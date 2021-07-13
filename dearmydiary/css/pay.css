@@ -1,0 +1,27 @@
+.popup_second > img:nth-of-type(2) {
+    width: 20%;
+    position: absolute;
+    bottom: 8rem;
+}
+.pay {
+    width: 100%;
+    height: 100vh;
+    background-image: url('../images/background/12_base.png');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pay > img {
+    width: 80%;
+}
+.pay--canvas {
+    position: absolute;
+}
+
+img.again {
+    width: 4rem;
+    position: absolute;
+    z-index: 1;
+    left: 82.5%;
+    top: 18%;
+}
