@@ -30,6 +30,34 @@ const element = [
                 </div>
                 <div class="bg--black"></div>
             </div>`
+    }, {
+        url: '/project',
+        dom: `<div class="bg">
+                <div class="bg__wrap max-width">
+                    <div class="bg__text bg__text--big">Hi, My name is <span class="bg__text bg__text--bold">KEBI</span></div>
+                    <div class="bg__text bg__text--small">
+                        project
+                    </div>
+                    <div class="icon__list">
+                        <div class="icon__item"></div>
+                    </div>
+                </div>
+                <div class="bg--black"></div>
+            </div>`
+    }, {
+        url: '/diary',
+        dom: `<div class="bg">
+                <div class="bg__wrap max-width">
+                    <div class="bg__text bg__text--big">Hi, My name is <span class="bg__text bg__text--bold">KEBI</span></div>
+                    <div class="bg__text bg__text--small">
+                        diary
+                    </div>
+                    <div class="icon__list">
+                        <div class="icon__item"></div>
+                    </div>
+                </div>
+                <div class="bg--black"></div>
+            </div>`
     }
 ]
 

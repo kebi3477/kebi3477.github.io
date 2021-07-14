@@ -51,13 +51,14 @@ nav {
 .content {
     width: 200%;
     height: 100%;
-    display: flex;
-    transition: 1s ease-out;
+    display: grid;
+    transition: .5s ease-in-out;
+    transform: translate(0);
+    grid-template-columns: 1fr 1fr;
 }
 .content.active {
-    transform: translate(-100%);
+    transform: translate(-50%);
 }
 .content__item {
-    width: 100%;
     height: 100%;
 }

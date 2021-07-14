@@ -2,14 +2,15 @@ import element from './element.js';
 const content = document.querySelector('.content');
 const menuItems = document.querySelectorAll('.menu__item');
 const contentItems = document.querySelectorAll('.content__item');
-let sliderFlag = 0;
+let sliderFlag = 1;
 
 
 menuItems.forEach(menuItem => {
     menuItem.addEventListener('click', function(event) {
         const pathName = event.target.getAttribute('route');
-        sliderFlag = sliderFlag ? 0 : 1;
         const content = contentItems[sliderFlag];
+        
+        sliderFlag = sliderFlag ? 0 : 1;
         historyRouterPush(pathName, content);
     })
 })
