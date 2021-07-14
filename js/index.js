@@ -55,14 +55,3 @@ function moveBackground(e) {
     const y = +(e.clientY / middleY).toFixed(2)*-10;
     bg.style.backgroundPosition = `${x}px ${y}px`;
 }
-
-
-// const menuItems = document.querySelectorAll('.menu__item'); 
-// const content = document.querySelector('.content');
-// let sliderFlag = 0;
-// menuItems.forEach(menuItem => {
-//     menuItem.addEventListener('click', function(event) {
-//         sliderFlag ? content.classList.remove('active') : content.classList.add('active');
-//         sliderFlag = sliderFlag ? 0 : 1;
-//     })
-// })

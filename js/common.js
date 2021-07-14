@@ -1,20 +1,19 @@
 import element from './element.js';
 const content = document.querySelector('.content');
-const menuItems = document.querySelectorAll('.menu__item');
+const menuItems = document.querySelectorAll('.menu__item, .logo');
 const contentItems = document.querySelectorAll('.content__item');
-let sliderFlag = 1;
-
+let sliderFlag = 1, contentDom;
 
 menuItems.forEach(menuItem => {
     menuItem.addEventListener('click', function(event) {
         const pathName = event.target.getAttribute('route');
-        const content = contentItems[sliderFlag];
+        contentDom = contentItems[sliderFlag];
         
         sliderFlag = sliderFlag ? 0 : 1;
-        historyRouterPush(pathName, content);
+        historyRouterPush(pathName, contentDom);
     })
 })
-window.onpopstate = () => renderHTML(content, window.location.pathname);
+window.onpopstate = () => renderHTML(contentDom, window.location.pathname);
 
 const historyRouterPush = (pathName, dom) => {
     window.history.pushState({}, pathName, window.location.origin + pathName);
