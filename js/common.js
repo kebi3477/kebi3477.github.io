@@ -1,10 +1,15 @@
 import element from './element.js';
-const menuItems = document.querySelectorAll('.menu__item');
 const content = document.querySelector('.content');
+const menuItems = document.querySelectorAll('.menu__item');
+const contentItems = document.querySelectorAll('.content__item');
+let sliderFlag = 0;
+
 
 menuItems.forEach(menuItem => {
     menuItem.addEventListener('click', function(event) {
         const pathName = event.target.getAttribute('route');
+        sliderFlag = sliderFlag ? 0 : 1;
+        const content = contentItems[sliderFlag];
         historyRouterPush(pathName, content);
     })
 })
@@ -19,6 +24,7 @@ const renderHTML = (dom, route) => {
     element.forEach(el => {
         if(el.url === route) {
             dom.innerHTML = el.dom;
+            sliderFlag ? content.classList.remove('active') : content.classList.add('active');
         }
     })
 }

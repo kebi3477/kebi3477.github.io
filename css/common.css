@@ -31,7 +31,7 @@ nav {
     align-items: center;
 }
 .logo {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     cursor: pointer;
 }
@@ -40,7 +40,7 @@ nav {
     gap: 3rem;
 }
 .menu__item {
-    font-size: 1.125rem;
+    font-size: 1rem;
     cursor: pointer;
     color: #999;
     transition: .2s;
@@ -49,6 +49,15 @@ nav {
     color: #333;
 }
 .content {
+    width: 200%;
+    height: 100%;
+    display: flex;
+    transition: 1s ease-out;
+}
+.content.active {
+    transform: translate(-100%);
+}
+.content__item {
     width: 100%;
     height: 100%;
 }
