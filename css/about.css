@@ -2,4 +2,45 @@
     width: 100%;
     height: 100%;
     background-color: #efefef;
+    margin-top: 80px;
+}
+.about__image {
+    background-image: url('../images/smile.jpg');
+    width: 20rem;
+    height: 20rem;
+    border-radius: 100%;
+}
+.about__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+}
+.about__grid--between {
+    grid-template-columns: auto auto auto;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.about__grid--icons {
+    grid-template-columns: repeat(7, auto);
+    justify-content: space-between;
+    margin: 3rem 0;
+}
+.about__grid--icons > i {
+    font-size: 5rem;
+}
+.about__text {
+    line-height: 2rem;
+}
+.about__text--big {
+    font-weight: bold;
+    font-size: 1.125rem;
+    margin-bottom: .5rem;
+}
+.about__text--name {
+    font-size: 3rem;
+    font-weight: 900;
+    text-shadow: 4rem 1rem 0px #3333;
+}
+.about__text > i {
+    margin-right: .5rem;
 }
