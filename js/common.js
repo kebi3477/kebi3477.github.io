@@ -16,7 +16,7 @@ const historyRouterPush = (pathName, dom) => {
 
 const renderHTML = (dom, route) => {
     element.forEach(el => {
-        if(el.name === route) {
+        if(el.url === route) {
             dom.innerHTML = route;
         }
     })

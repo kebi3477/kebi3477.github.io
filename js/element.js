@@ -25,8 +25,6 @@ const element = [
                     about
                 </div>
                 <div class="icon__list">
-                    <a href="https://github.com/kebi3477"><div class="icon__item github"></div></a>
-                    <a href="https://www.instagram.com/kebi_ko/"><div class="icon__item insta"></div></a>
                     <div class="icon__item"></div>
                 </div>
             </div>
