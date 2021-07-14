@@ -1,3 +1,4 @@
+import element from './element.js';
 const menuItems = document.querySelectorAll('.menu__item');
 const content = document.querySelector('.content');
 
@@ -14,5 +15,9 @@ const historyRouterPush = (pathName, dom) => {
 }
 
 const renderHTML = (dom, route) => {
-    dom.innerHTML = route;
+    element.forEach(el => {
+        if(el.name === route) {
+            dom.innerHTML = route;
+        }
+    })
 }
