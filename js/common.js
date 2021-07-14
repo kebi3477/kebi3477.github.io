@@ -2,7 +2,6 @@ import element from './element.js';
 const menuItems = document.querySelectorAll('.menu__item');
 const content = document.querySelector('.content');
 
-menuItems.push(document.querySelector('.logo'));
 menuItems.forEach(menuItem => {
     menuItem.addEventListener('click', function(event) {
         const pathName = event.target.getAttribute('route');
