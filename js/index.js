@@ -3,7 +3,7 @@ class Hashtag {
         this.flag = flag;
         this.textArr = [["협력", "긍정적", "밝음", "분위기메이커"], ["재밌음", "열정적", "ESFJ", "고동민"]];
         this.hashtagList = document.querySelector('.hashtag__list');
-        this.top = this.flag ? 80 : 800;
+        this.top = this.flag ? 50 : 800;
         this.left = this.flag ? 1900 : 0;
         this.speed = 1;
         this.init();
@@ -11,7 +11,7 @@ class Hashtag {
     init() {
         this.hashtag = document.createElement('div');
         this.hashtag.classList.add('hashtag__item');
-        this.hashtag.innerText = this.textArr[this.flag][Math.floor(Math.random()*this.textArr[this.flag].length)];
+        this.hashtag.innerText = '#' + this.textArr[this.flag][Math.floor(Math.random()*this.textArr[this.flag].length)];
         this.hashtag.style.top = `${this.top}px`;
         this.hashtag.style.left = `${this.left}px`;
         this.hashtag.onmouseover = () => this.stop();
