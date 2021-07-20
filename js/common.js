@@ -2,7 +2,7 @@ import element from './element.js';
 const content = document.querySelector('.content');
 const menuItems = document.querySelectorAll('.menu__item, .logo');
 const contentItems = document.querySelectorAll('.content__item');
-let sliderFlag = 1, contentDom;
+let sliderFlag = 1, contentDom, prevPath = "";
 
 menuItems.forEach(menuItem => {
     menuItem.addEventListener('click', function(event) {
@@ -21,11 +21,11 @@ const historyRouterPush = (pathName, dom) => {
 }
 
 const renderHTML = (dom, route) => {
-    const url = new URL(window.location);
     element.forEach(el => {
-        if(el.url === route && url.pathname !== route) {
+        if(el.url === route && prevPath !== el.url) {
             dom.innerHTML = el.dom;
             sliderFlag ? content.classList.remove('active') : content.classList.add('active');
+            prevPath = el.url;
         }
     })
 }
