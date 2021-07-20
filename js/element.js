@@ -22,7 +22,12 @@ const element = [
                 <div class="about__text--name">
                     고동민
                 </div>
-                <div class="about__image"></div>
+                <div class="about__image">
+                    <img src="images/profile.png" alt="profile">
+                    <div class="about__circle"></div>
+                    <div class="about__circle"></div>
+                    <div class="about__circle"></div>
+                </div>
                 <div class="about__text">
                     <div class="about__text--big">INFORMATION</div>
                     <i class="fas fa-phone-alt"></i>010-5295-6530<br>

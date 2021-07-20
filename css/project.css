@@ -1,5 +1,51 @@
 .project__header {
     width: 100%;
-    height: 30vh;
-    background-color: #000;
+    height: 50vh;
+    display: grid;
+    place-content: center;
+}
+.project__text {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #7a7a7a;
+}
+.project__text--big {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: .5rem;
+}
+.project__list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+.project__item {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    gap: .5rem;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,.09);
+    padding: 1rem;
+}
+.project__image {
+    background-color: #7a7a7a;
+    width: 100%;
+    height: 20vh;
+    overflow: hidden;
+}
+.project__image > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: .2s;
+}
+.project__item:hover img {
+    transform: scale(1.1);
+}
+.project__label {
+    
+}
+.project__label--bold {
+    font-weight: bold;
 }
