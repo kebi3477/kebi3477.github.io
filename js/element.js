@@ -9,9 +9,8 @@ const element = [
                         저의 홈페이지에 접속해주셔서 정말 감사합니다!
                     </div>
                     <div class="icon__list">
-                        <a href="https://github.com/kebi3477"><div class="icon__item github"></div></a>
-                        <a href="https://www.instagram.com/kebi_ko/"><div class="icon__item insta"></div></a>
-                        <div class="icon__item"></div>
+                    <a href="https://github.com/kebi3477"><div class="icon__item"><i class="fab fa-github"></i></div></a>
+                    <a href="https://www.instagram.com/kebi_ko/"><div class="icon__item"><i class="fab fa-instagram"></i></div></a>
                     </div>
                 </div>
                 <div class="bg--black"></div>
