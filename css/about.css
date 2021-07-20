@@ -1,19 +1,51 @@
+@keyframes bubble {
+    0% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    50% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 70%;
+    }
+    100% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+}
 .about {
     width: 100%;
     height: 100%;
     /* background-color: #efefef; */
-    margin-top: 80px;
+    margin-top: 8%;
 }
 .about__image {
-    background-image: url('../images/smile.jpg');
-    width: 20rem;
-    height: 20rem;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    place-content: center;
+}
+.about__circle {
+    position: absolute;
+    border: 1px solid #ABD5F5;
+    width: 90%;
+    padding-top: 90%;
     border-radius: 100%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation: bubble 5s infinite ease-in-out;
+}
+.about__circle:nth-of-type(2) {
+    animation: bubble 7s infinite ease-in-out;
+    transform: translate(-50%, -50%) rotate(120deg);
+}
+.about__circle:nth-of-type(3) {
+    animation: bubble 10s infinite ease-in-out;
+    transform: translate(-50%, -50%) rotate(240deg);
 }
 .about__grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     align-items: center;
+    place-items: center;
 }
 .about__grid--between {
     grid-template-columns: auto auto auto;
@@ -40,6 +72,7 @@
     font-size: 3rem;
     font-weight: 900;
     text-shadow: 4rem 1rem 0px #3333;
+    place-self: center flex-start;
 }
 .about__text > i {
     margin-right: .5rem;
