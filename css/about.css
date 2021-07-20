@@ -9,14 +9,6 @@
         border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
     }
 }
-@keyframes intro_opacity {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
 .about {
     width: 100%;
     height: 100%;
