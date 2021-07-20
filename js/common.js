@@ -23,7 +23,7 @@ const historyRouterPush = (pathName, dom) => {
 const renderHTML = (dom, route) => {
     const url = new URL(window.location);
     element.forEach(el => {
-        if(el.url === route && !url.pathname.includes(route)) {
+        if(el.url === route && url.pathname !== route) {
             dom.innerHTML = el.dom;
             sliderFlag ? content.classList.remove('active') : content.classList.add('active');
         }
