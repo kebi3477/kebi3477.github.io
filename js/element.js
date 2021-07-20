@@ -18,7 +18,7 @@ const element = [
     }, {
         url: '/about',
         dom: `<div class="about max-width">
-            <div class="about__grid">
+            <div class="about__grid about__grid--top">
                 <div class="about__text--name">
                     고동민
                 </div>
@@ -33,7 +33,7 @@ const element = [
                     <i class="fas fa-phone-alt"></i>010-5295-6530<br>
                     <i class="fas fa-envelope"></i>kebi3477@naver.com<br>
                     <i class="fas fa-birthday-cake"></i>2000. 02. 11.<br>
-                    <i class="fab fa-github"></i>https://github.com/kebi3477
+                    <i class="fab fa-github"></i><a href="https://github.com/kebi3477" target="_blank">https://github.com/kebi3477</a>
                 </div>
             </div>
             <div class="about__grid about__grid--icons">
@@ -66,21 +66,48 @@ const element = [
                     정보기기운용기능사<br>
                 </div>
             </div>
-        </div>`
+        </div>
+    </div>`
     }, {
         url: '/project',
-        dom: `<div class="bg">
-                <div class="bg__wrap max-width">
-                    <div class="bg__text bg__text--big">Hi, My name is <span class="bg__text bg__text--bold">KEBI</span></div>
-                    <div class="bg__text bg__text--small">
-                        project
+        dom: `<div class="project">
+            <div class="project__header">
+                <div class="project__text project__text--big">고동민의 프로젝트</div>
+                <div class="project__text">제가 지금까지 작업했던 프로젝트들 입니다. 클릭하시면 자세한 내용을 확인하실 수 있습니다.</div>
+            </div>
+            <div class="project__body max-width">
+                <div class="project__list">
+                    <div class="project__item">
+                        <div class="project__image">
+                            <img src="images/jac.png" alt="jeju-and-coffe">
+                        </div>
+                        <div class="project__label project__label--bold">Jeju And Coffee</div>
+                        <div class="project__label">제주에 있는 모든 카페 정보들을 안내하는 웹 페이지</div>
                     </div>
-                    <div class="icon__list">
-                        <div class="icon__item"></div>
+                    <div class="project__item">
+                        <div class="project__image">
+                            <img src="images/transition.png" alt="alife">
+                        </div>
+                        <div class="project__label project__label--bold">모바일 장병 출타체계</div>
+                        <div class="project__label">공군 장병 출타증 모바일 웹</div>
+                    </div>
+                    <div class="project__item">
+                        <div class="project__image">
+                            <img src="images/dmd.png" alt="dear-my-diary">
+                        </div>
+                        <div class="project__label project__label--bold">Dear-my-diary</div>
+                        <div class="project__label">중노년층의 인지기능 강화를 위한 기능성 게임 개발</div>
+                    </div>
+                    <div class="project__item">
+                        <div class="project__image">
+                            <img src="images/alife.png" alt="alife">
+                        </div>
+                        <div class="project__label project__label--bold">ALife</div>
+                        <div class="project__label">냉장고에 남은 음식을 최대한으로 활용하여 요리를 만드는 웹 페이지</div>
                     </div>
                 </div>
-                <div class="bg--black"></div>
-            </div>`
+            </div>
+        </div>`
     }, {
         url: '/diary',
         dom: `<div class="bg">
