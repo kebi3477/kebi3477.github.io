@@ -1,12 +1,13 @@
 /* index */
-.bg {
+.visual {
     width: 100%;
-    height: 100%;
+    height: 50vh;
     background-image: url('../images/background.jpg');
     background-size: 105%;
+    background-position: 0% 30%;
     position: relative;
 }
-.bg__wrap {
+.visual__wrap {
     position: relative;
     left: 0;
     top: 30%;
@@ -14,23 +15,26 @@
     display: grid;
     gap: 1rem;
     animation: intro 1s ease-out;
+    margin-top: 80px;
 }
-.bg__text {
+.visual__text {
     color: #fff;
 }
-.bg__text--bold {
+.visual__text--bold {
     font-weight: bold;
     font-size: 4rem;
 }
-.bg__text--big {
+.visual__text--big {
     font-size: 3.5rem;
 }
-.bg__text--small {
+.visual__text--small {
     font-size: 1.25rem;
 }
 .icon__list {
     display: flex;    
     gap: 1rem;
+    animation: intro_opacity 1s 1s forwards;
+    opacity: 0;
 }
 .icon__item {
     width: 30px;
@@ -45,7 +49,7 @@
 .icon__item > i:hover {
     color: #fff;
 }
-.bg--black {
+.visual--black {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,.6);
@@ -53,23 +57,72 @@
     top: 0;
     left: 0;
 }
-.hashtag__list {
-    position: absolute;
-    top: 0px;
-    left: 0;
+/* 타이틀 */
+.title {
+    /* margin-top: 5rem; */
 }
-.hashtag__item {
-    width: max-content;
-    font-size: 7rem;
-    color: #fff;
-    opacity: .3;
-    font-weight: 700;
-    transform: translate(120px);
-    z-index: 1;
-    position: absolute;
-    cursor: default;
-    user-select: none;
+.title__text {
+    text-align: center;
 }
-.hashtag__item:hover {
-    opacity: 1;
+.title__text--big {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+.title__text--small {
+    margin-top: 1rem;
+}
+/* about */
+.about, 
+.project,
+.blog {
+    padding: 5rem 0;
+}
+.about__list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 3rem;
+    gap: 5rem;
+}
+.about__item {
+    display: grid;
+    grid-template-rows: 3.5fr .5fr .5fr;
+    place-items: center;
+    gap: .5rem;
+}
+.about__image {
+    display: flex;
+    font-size: 4rem;
+}
+.about__image > i {
+    transition: .2s;
+}
+.about__item:hover > .about__image > i {
+    color: var(--main);
+}
+.about__text {
+    color: #7a7a7a;
+    text-align: center;
+}
+.about__text--bold {
+    font-weight: 800;
+}
+
+@media (max-width: 750px) {
+    .visual {
+        background-size: cover;
+        background-position: center;
+    }
+    .visual__wrap {
+        top: 30%;
+        margin-top: 0px;
+    }
+    .visual__text {
+        font-size: 1rem;
+    }
+    .visual__text--big {
+        font-size: 1.5rem;
+    }
+    .visual__text--bold {
+        font-size: 2rem;
+    }
 }

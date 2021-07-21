@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 minimum-scale=1">
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/about.css">
     <link rel="stylesheet" href="css/project.css">
-    <title>안녕? 나는 고동민</title>
+    <title>Backend Developer - 고동민 블로그</title>
 </head>
 <body>
     <nav>
@@ -18,32 +18,82 @@
             <div class="menu__list">
                 <div class="menu__item" route="/about">ABOUT</div>
                 <div class="menu__item" route="/project">PROJECT</div>
-                <div class="menu__item" route="/diary">DIARY</div>
+                <div class="menu__item" route="/blog">BLOG</div>
             </div>
         </div>
     </nav>
     <div class="content">
         <div class="content__item">
-            <div class="bg">
-                <div class="bg__wrap max-width">
-                    <div class="bg__text bg__text--big">Hi, My name is <span class="bg__text bg__text--bold">KEBI</span></div>
-                    <div class="bg__text bg__text--small">
+            <div class="visual">
+                <div class="visual__wrap max-width">
+                    <div class="visual__text visual__text--big">Hi, My name is <span class="visual__text visual__text--bold">KEBI</span></div>
+                    <div class="visual__text visual__text--small">
                         안녕하세요, 열정적인 백앤드 개발자를 희망하고 있는 고동민이라고 합니다.<br>
                         저의 홈페이지에 접속해주셔서 정말 감사합니다!
                     </div>
                     <div class="icon__list">
-                        <a href="https://github.com/kebi3477"><div class="icon__item"><i class="fab fa-github"></i></div></a>
-                        <a href="https://www.instagram.com/kebi_ko/"><div class="icon__item"><i class="fab fa-instagram"></i></div></a>
+                        <a href="https://github.com/kebi3477" target="_blank"><div class="icon__item"><i class="fab fa-github"></i></div></a>
+                        <a href="https://www.instagram.com/kebi_ko/" target="_blank"><div class="icon__item"><i class="fab fa-instagram"></i></div></a>
                     </div>
                 </div>
-                <div class="bg--black"></div>
+                <div class="visual--black"></div>
             </div>
             <div class="hashtag__list"></div>
+            <div class="about max-width">
+                <div class="title">
+                    <div class="title__text title__text--big">ABOUT ME</div>
+                    <div class="title__text title__text--small">제가 지금까지 사용했던 언어 및 툴 들입니다. 좀 더 자세한 내용은 ABOUT에서 확인하실 수 있습니다.</div>
+                </div>
+                <div class="about__list">
+                    <div class="about__item">
+                        <div class="about__image"><i class="fas fa-code"></i></div>
+                        <div class="about__text about__text--bold">Language</div>
+                        <div class="about__text about__text--small">HTML5, CSS3, JavaScript, Php, Java</div>
+                    </div>
+                    <div class="about__item">
+                        <div class="about__image"><i class="fas fa-laptop-code"></i></div>
+                        <div class="about__text about__text--bold">Framework</div>
+                        <div class="about__text about__text--small">React.js, Vue.js, Node.js, Spring</div>
+                    </div>
+                    <div class="about__item">
+                        <div class="about__image"><i class="fas fa-tools"></i></div>
+                        <div class="about__text about__text--bold">Tools</div>
+                        <div class="about__text about__text--small">Visual Studio Code, git, Notion</div>
+                    </div>
+                </div>
+            </div>
+            <div class="project">
+                <div class="title">
+                    <div class="title__text title__text--big">PROJECT</div>
+                    <div class="title__text title__text--small">공사 중 입니다.</div>
+                </div>
+            </div>
+            <div class="blog">
+                <div class="title">
+                    <div class="title__text title__text--big">BLOG</div>
+                    <div class="title__text title__text--small">공사 중 입니다.</div>
+                </div>
+            </div>
         </div>
         <div class="content__item">
             
         </div>
     </div>
+    <footer>
+        <div class="footer max-width">
+            <div class="footer__list">
+                <a href="https://github.com/kebi3477" target="_blank"><div class="footer__icon"><i class="fab fa-github"></i></div></a>
+                <a href="https://www.instagram.com/kebi_ko/" target="_blank"><div class="footer__icon"><i class="fab fa-instagram"></i></div></a>
+            </div>
+            <div class="footer__list">
+                <div class="footer__item"><i class="fas fa-smile"></i>고동민</div>
+                <div class="footer__item"><i class="fas fa-envelope-open"></i>kebi3477@naver.com</div>
+                <div class="footer__item"><i class="fas fa-phone-alt"></i>010-5295-6530</div>
+                <div class="footer__item"><i class="fas fa-birthday-cake"></i>2000. 02. 11</div>
+            </div>
+            <div class="footer__text">@2021 Copyright All Rights Reserved.</div>
+        </div>
+    </footer>
     <!-- <script src="js/index.js"></script> -->
     <!-- <script src="js/init.js"></script> -->
     <script type="module" src="js/common.js"></script>
