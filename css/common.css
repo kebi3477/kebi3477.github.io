@@ -141,4 +141,11 @@ footer div {
     .max-width {
         max-width: 90vw;
     }
+    .footer__list:nth-of-type(2) {
+        flex-flow: column;
+        gap: 1rem;
+    }
+    .footer__item {
+        border-right: none;
+    }
 }
