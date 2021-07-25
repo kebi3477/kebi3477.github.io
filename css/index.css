@@ -92,12 +92,12 @@
 .about__image {
     display: flex;
     font-size: 4rem;
+    align-items: center;
+    justify-content: center;
 }
-.about__image > i {
-    transition: .2s;
-}
-.about__item:hover > .about__image > i {
-    color: var(--main);
+.about__image > object {
+    width: 30%;
+    height: 30%;
 }
 .about__text {
     color: #7a7a7a;
