@@ -53,54 +53,127 @@ const element = [
     </div>`
     }, {
         url: '/about',
-        dom: `<div class="about max-width">
-            <div class="about__grid about__grid--top">
-                <div class="about__text--name">
-                    고동민
-                </div>
-                <div class="about__image">
-                    <img src="images/profile.png" alt="profile">
-                    <div class="about__circle"></div>
-                    <div class="about__circle"></div>
-                    <div class="about__circle"></div>
-                </div>
-                <div class="about__text">
-                    <div class="about__text--big">INFORMATION</div>
-                    <i class="fas fa-phone-alt"></i>010-5295-6530<br>
-                    <i class="fas fa-envelope"></i>kebi3477@naver.com<br>
-                    <i class="fas fa-birthday-cake"></i>2000. 02. 11.<br>
-                    <i class="fab fa-github"></i><a href="https://github.com/kebi3477" target="_blank">https://github.com/kebi3477</a>
+        dom: `<div class="intro">
+        <div class="intro__wrap max-width">
+            <div class="intro__left">
+                <div class="intro__text">안녕하세요<br>저는 고동민입니다. 저를 소개해 드릴까요?<br>이미지를 눌러보세요!</div>
+                <div class="intro__texts">
+                    <div class="intro__text title">안녕하세요</div>
+                    <div class="intro__text text"></div>
                 </div>
             </div>
-            <div class="about__grid about__grid--icons">
-                <i class="fab fa-html5"></i>
-                <i class="fab fa-css3-alt"></i>
-                <i class="fab fa-js"></i>
-                <i class="fab fa-php"></i>
-                <i class="fas fa-database"></i>
-                <i class="fab fa-node"></i>
-                <i class="fab fa-git-alt"></i>
+            <!-- 
+                1. 개발자 고동민
+                2. JavaSript
+                3. 
+                4. 긍정적
+                5.  --> 
+            <div class="intro__right">
+                <div class="circle__list">
+                    <div class="circle__item">
+                        <img src="images/my.jpg">
+                    </div>
+                    <div class="circle__item">
+                        <img src="images/javascript.svg">
+                    </div>
+                    <div class="circle__item">
+                        <object data="images/positive-vote.svg" type="image/svg+xml"></object>
+                    </div>
+                    <div class="circle__item">
+                        <object data="images/confidence.svg" type="image/svg+xml"></object>
+                    </div>
+                    <div class="circle__item">
+                        <object data="images/goal.svg" type="image/svg+xml"></object>
+                    </div>
+                </div>
             </div>
-            <div class="about__grid about__grid--between">
-                <div class="about__text">
-                    <div class="about__text--big">EDUCATION</div>
-                    2018. 02. 영주고등학교 컴퓨터공업과 졸업<br>
-                    2020. 11. 공군 정보체계관리단 SW개발지원병 만기 전역<br>
-                    2022. 03. 한국폴리텍대학 제주캠퍼스 융합디자인학과 졸업예정<br>
+        </div>
+    </div>
+    <div class="language">
+        <div class="language__title max-width">LANGUAGE</div>
+        <div class="language__list max-width">
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/html.svg" type="image/svg+xml"></object>
                 </div>
-                <div class="about__text">
-                    <div class="about__text--big">AWARD</div>
-                    2017 전국기능경기대회 정보기술 부문 장려상<br>
-                    2018 벤처창업아이템 공모전 장려상<br>
-                    2018 제 6회 K-Hackathon 우수상<br>
-                    2021 지방기능경기대회 웹디자인 및 개발 부문 금메달<br>                 
+                <div class="language__name">HTML</div>
+                <div class="language__text">시멘틱 태그<br></div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/css.svg" type="image/svg+xml"></object>
                 </div>
-                <div class="about__text">
-                    <div class="about__text--big">LICENSE</div>
-                    웹디자인기능사<br>
-                    정보처리기능사<br>
-                    정보기기운용기능사<br>
+                <div class="language__name">CSS</div>
+                <div class="language__text">KeyFrames<br>Media query</div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <i class="fab fa-js"></i>
                 </div>
+                <div class="language__name">JavaSript</div>
+                <div class="language__text">주력언어<br>Vanilla Js, ECMAScript</div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <i class="fab fa-php"></i>
+                </div>
+                <div class="language__name">php</div>
+                <div class="language__text">MVC, Mail Server<br>Custom Message</div>
+            </div>
+        </div>
+        <div class="language__title max-width">FRAMEWORK</div>
+        <div class="language__list max-width">
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/node.svg" type="image/svg+xml"></object>
+                </div>
+                <div class="language__name">Node.js</div>
+                <div class="language__text">주력 프레임워크<br>Express, File-session</div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/spring.svg" type="image/svg+xml"></object>
+                </div>
+                <div class="language__name">Spring</div>
+                <div class="language__text">Mybatis + DAO 데이터 통신</div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/vue.svg" type="image/svg+xml"></object>
+                </div>
+                <div class="language__name">Vue.js</div>
+                <div class="language__text">Vue Directive를 이용한 페이지 구축</div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/react.svg" type="image/svg+xml"></object>
+                </div>
+                <div class="language__name">React.js</div>
+                <div class="language__text">Route, status를 통한 SPA 구축</div>
+            </div>
+        </div>
+        <div class="language__title max-width">TOOL</div>
+        <div class="language__list max-width">
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/vscode.svg" type="image/svg+xml"></object>
+                </div>
+                <div class="language__name">Vs Code</div>
+                <div class="language__text">코드 작성</div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/git.svg" type="image/svg+xml"></object>
+                </div>
+                <div class="language__name">git</div>
+                <div class="language__text">버전 관리</div>
+            </div>
+            <div class="language__item">
+                <div class="language__image">
+                    <object data="images/language/notion.svg" type="image/svg+xml"></object>
+                </div>
+                <div class="language__name">Notion</div>
+                <div class="language__text">문서 정리</div>
             </div>
         </div>
     </div>`
