@@ -1,9 +1,8 @@
 .project__header {
     width: 100%;
-    height: 50vh;
-    display: grid;
-    place-content: center;
+    height: 30vh;
     animation: intro_opacity 1s;
+    margin-top: 160px;
 }
 .project__text {
     text-align: center;

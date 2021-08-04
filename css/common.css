@@ -59,6 +59,7 @@ body::-webkit-scrollbar-thumb{
 body::-webkit-scrollbar-track{
     background-color: rgba(0,0,0,.1);
 }
+/* 공통 및 메뉴 */
 .max-width {
     max-width: 1200px;
     margin: 0 auto;
@@ -102,16 +103,18 @@ nav {
     display: grid;
     transition: .5s ease-in-out;
     transform: translate(0);
-    /* grid-template-columns: 1fr 1fr; */
     position: relative;
 }
 .content.active {
     transform: translate(-50%);
 }
-/* .content__item {
-    height: 100%;
-} */
-
+.title {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+.subtitle {
+    font-size: 1.125rem;
+}
 /* footer */
 footer {
     background-color: #333;
