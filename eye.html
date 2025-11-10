@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>눈 따라오기 (로컬 HTTP + BlazeFace)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html,body { height:100%; }
+    body { margin:0; background:#000; overflow:hidden; touch-action:none; }
+    canvas { display:block; }
+    #debug {
+      position:fixed; top:10px; left:10px; z-index:10;
+      font:12px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:#0f0; background:rgba(0,0,0,.5); padding:8px 10px; border-radius:8px;
+      white-space:pre; pointer-events:none;
+    }
+  </style>
+
+  <!-- ✅ TFJS 필수: core + converter + webgl (버전 맞춤) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.20.0/dist/tf-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.20.0/dist/tf-converter.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.20.0/dist/tf-backend-webgl.min.js"></script>
+  <!-- (옵션) CPU 백엔드도 준비해두면 WebGL 안될 때 자동 폴백 -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu@4.20.0/dist/tf-backend-cpu.min.js"></script>
+
+  <!-- ✅ BlazeFace 모델 -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
+</head>
+<body>
+  <div id="debug">loading…</div>
+  <video id="video" autoplay muted playsinline style="display:none"></video>
+  <canvas id="eyes"></canvas>
+  <canvas id="overlay" style="position:fixed; inset:0; pointer-events:none;"></canvas>
+
+<script>
+const video   = document.getElementById('video');
+const canvas  = document.getElementById('eyes');
+const ctx     = canvas.getContext('2d');
+const overlay = document.getElementById('overlay');
+const octx    = overlay.getContext('2d', { willReadFrequently:true });
+const dbg     = document.getElementById('debug');
+
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  overlay.width  = window.innerWidth;
+  overlay.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const eyeRadius   = 90;
+const pupilRadius = 30;
+const maxMove     = 26;
+
+let targetX = 0.5, targetY = 0.5;
+let smoothX = 0.5, smoothY = 0.5;
+
+let lastDetectionTs = 0;
+const STALE_MS = 600;
+
+// FPS
+let lastTs = performance.now(), frames = 0, fps = 0;
+function tickFPS() {
+  frames++;
+  const now = performance.now();
+  if (now - lastTs >= 1000) { fps = frames; frames = 0; lastTs = now; }
+}
+
+function drawEyes() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const leftEye  = { x: canvas.width * 0.35, y: canvas.height * 0.5 };
+  const rightEye = { x: canvas.width * 0.65, y: canvas.height * 0.5 };
+
+  if (performance.now() - lastDetectionTs > STALE_MS) {
+    targetX += (0.5 - targetX) * 0.05;
+    targetY += (0.5 - targetY) * 0.05;
+  }
+
+  smoothX = smoothX * 0.8 + targetX * 0.2;
+  smoothY = smoothY * 0.8 + targetY * 0.2;
+
+  // 전면 미러링은 추정 단계에서 좌우반전 적용하므로 그대로 사용
+  const fx = smoothX;
+  const fy = smoothY;
+
+  const offsetX = (fx - 0.5) * maxMove * 2;
+  const offsetY = (fy - 0.5) * maxMove;
+
+  ctx.fillStyle = "white";
+  [leftEye, rightEye].forEach(e => {
+    ctx.beginPath(); ctx.arc(e.x, e.y, eyeRadius, 0, Math.PI*2); ctx.fill();
+  });
+
+  ctx.fillStyle = "black";
+  [leftEye, rightEye].forEach(e => {
+    ctx.beginPath(); ctx.arc(e.x + offsetX, e.y + offsetY, pupilRadius, 0, Math.PI*2); ctx.fill();
+  });
+
+  requestAnimationFrame(drawEyes);
+}
+
+let model = null;
+let running = false;
+let facesCount = 0;
+
+async function start() {
+  // 백엔드 설정(가능하면 webgl, 아니면 cpu)
+  try {
+    await tf.setBackend('webgl');
+  } catch (e) {
+    await tf.setBackend('cpu');
+  }
+  await tf.ready();
+
+  // 카메라 (localhost는 http에서도 허용)
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: "user" }, width: { ideal: 640 }, height: { ideal: 480 } },
+    audio: false
+  });
+  video.srcObject = stream;
+  await video.play();
+
+  // 모델 로드
+  model = await blazeface.load();
+
+  running = true;
+  requestAnimationFrame(loop);
+  drawEyes();
+}
+
+function drawOverlayBox(pred) {
+  let x, y, w, h;
+  if (pred.topLeft && pred.bottomRight) {
+    const [x1, y1] = pred.topLeft;
+    const [x2, y2] = pred.bottomRight;
+    x = x1; y = y1; w = x2 - x1; h = y2 - y1;
+  } else if (pred.box) {
+    x = pred.box.xMin; y = pred.box.yMin; w = pred.box.width; h = pred.box.height;
+  } else {
+    return;
+  }
+  const sx = overlay.width  / video.videoWidth;
+  const sy = overlay.height / video.videoHeight;
+  octx.strokeStyle = 'rgba(0,255,0,0.9)';
+  octx.lineWidth = 2;
+  // 전면 미러링(아래 nx=1-nx)과 맞게 좌우 반전하여 그림
+  octx.strokeRect(overlay.width - (x + w)*sx, y*sy, w*sx, h*sy);
+}
+
+async function loop() {
+  if (!running) return;
+  tickFPS();
+
+  try {
+    // BlazeFace는 사양에 따라 두 시그니처를 지원: boolean 플래그 or 옵션 객체
+    // 우선 옵션 객체로 호출 (flipHorizontal 적용)
+    let faces = await model.estimateFaces(video, { returnTensors: false, flipHorizontal: true });
+    // 어떤 빌드에선 위가 지원 안 될 수 있어 폴백
+    if (!Array.isArray(faces)) {
+      faces = await model.estimateFaces(video, false); // 구버전 시그니처
+    }
+
+    facesCount = faces.length;
+    octx.clearRect(0,0,overlay.width, overlay.height);
+
+    if (facesCount > 0) {
+      faces.sort((a,b)=>getArea(b)-getArea(a));
+      const f = faces[0];
+
+      let cx, cy;
+      if (f.topLeft && f.bottomRight) {
+        const [x1, y1] = f.topLeft;
+        const [x2, y2] = f.bottomRight;
+        cx = (x1 + x2) / 2;
+        cy = (y1 + y2) / 2;
+      } else if (f.box) {
+        cx = f.box.xMin + f.box.width/2;
+        cy = f.box.yMin + f.box.height/2;
+      }
+
+      // 정규화
+      let nx = cx / video.videoWidth;
+      let ny = cy / video.videoHeight;
+
+      // 전면 미러링(오버레이도 뒤집어 그림)
+      nx = 1 - nx;
+
+      targetX = clamp01(nx);
+      targetY = clamp01(ny);
+      lastDetectionTs = performance.now();
+
+      drawOverlayBox(f);
+    }
+  } catch (e) {
+    // 일시적 에러 무시
+  }
+
+  dbg.textContent =
+`tfjs: ${tf.version_core}
+backend: ${tf.getBackend()}
+fps: ${fps}
+video: ${video.videoWidth}x${video.videoHeight}
+faces: ${facesCount}
+origin: ${location.origin}`;
+
+  requestAnimationFrame(loop);
+}
+
+function clamp01(v){ return v<0?0:v>1?1:v; }
+function getArea(pred){
+  if (pred.topLeft && pred.bottomRight){
+    const [x1,y1]=pred.topLeft, [x2,y2]=pred.bottomRight;
+    return (x2-x1)*(y2-y1);
+  } else if (pred.box){
+    return pred.box.width*pred.box.height;
+  }
+  return 0;
+}
+
+start().catch(err => {
+  console.error(err);
+  alert('카메라 권한이 허용되었는지, localhost로 접속 중인지 확인하세요.');
+});
+</script>
+</body>
+</html>

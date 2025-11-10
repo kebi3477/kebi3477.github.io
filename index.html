@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>Eyes Follow You – MediaPipe (Web)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { margin:0; height:100%; background:#000; overflow:hidden; }
+    canvas { display:block; width:100vw; height:100vh; }
+    /* 웹캠 영상은 화면에 보이지 않게 숨김 */
+    video { position:fixed; right:0; bottom:0; width:1px; height:1px; opacity:0; pointer-events:none; }
+    .hint {
+      position: fixed; left: 12px; bottom: 12px; color:#888; font: 12px/1.3 system-ui, sans-serif;
+      background: rgba(0,0,0,.5); padding:6px 8px; border-radius:6px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="stage"></canvas>
+  <video id="webcam" autoplay playsinline></video>
+  <div class="hint">카메라 권한을 허용하세요. 사람이 없으면 중앙을 보다가, 나타나면 시선을 따라갑니다.</div>
+
+  <!-- MediaPipe Tasks Vision (ES Module) -->
+  <script type="module">
+    import {
+      FaceLandmarker,
+      FilesetResolver
+    } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs";
+
+    // ====== 기본 DOM / 캔버스 세팅 ======
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d', { alpha:false });
+    const video = document.getElementById('webcam');
+
+    function resize() {
+      const w = Math.floor(window.innerWidth * dpr);
+      const h = Math.floor(window.innerHeight * dpr);
+      canvas.width = w; canvas.height = h;
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // ====== 눈(그래픽) 파라미터 ======
+    const state = {
+      eyeGapFactor: 0.22,     // 두 눈 사이 간격 (짧은 변 * 이 값)
+      eyeballRFactor: 0.09,   // 흰자 반지름
+      pupilRFactor: 0.04,     // 동공 반지름
+      pupilMaxOffset: 0.0,    // 계산 후 채움
+      targetX: 0, targetY: 0,
+      smoothedX: 0, smoothedY: 0, // EMA로 부드럽게
+      hasFace: false,
+    };
+
+    // ====== 카메라 시작 & mirrorX 판정 ======
+    let mirrorX = true; // 전면 카메라면 true, 후면이면 false
+    async function initCamera() {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: {ideal: 1280}, height: {ideal: 720} },
+        audio: false
+      });
+      video.srcObject = stream;
+      await video.play();
+
+      const track = stream.getVideoTracks()[0];
+      const settings = track?.getSettings?.() || {};
+      // facingMode가 'environment'면 후면 → 좌우 반전 필요 없음
+      mirrorX = (settings.facingMode || "user") !== "environment";
+    }
+
+    // ====== MediaPipe Face Landmarker 로드 ======
+    let faceLandmarker;
+    async function initFaceLandmarker() {
+      const filesetResolver = await FilesetResolver.forVisionTasks(
+        // wasm 런타임 로더(CDN). 막히면 아래 주석(unpkg)로 교체 가능
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+        // "https://unpkg.com/@mediapipe/tasks-vision@latest/wasm"
+      );
+
+      faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
+        baseOptions: {
+          // 공식 모델 URL(GCS) — 404 안 남
+          modelAssetPath:
+            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+        },
+        runningMode: "VIDEO",
+        numFaces: 5,
+        minFaceDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+    }
+
+    // ====== 유틸: 가장 "가까운" 얼굴 고르기 (랜드마크 박스 면적 기준) ======
+    function pickClosestFace(faces) {
+      if (!faces || faces.length === 0) return null;
+      let best = null, bestScore = -1;
+      for (const lm of faces) {
+        let minX=1, minY=1, maxX=0, maxY=0;
+        for (const p of lm) { // p.x, p.y (0..1)
+          if (p.x < minX) minX = p.x;
+          if (p.x > maxX) maxX = p.x;
+          if (p.y < minY) minY = p.y;
+          if (p.y > maxY) maxY = p.y;
+        }
+        const area = (maxX - minX) * (maxY - minY);
+        if (area > bestScore) { bestScore = area; best = lm; }
+      }
+      return best;
+    }
+
+    // ====== 유틸: 랜드마크들의 평균(대충 얼굴 중심) ======
+    function meanPoint(lm) {
+      let sx=0, sy=0;
+      for (const p of lm) { sx += p.x; sy += p.y; }
+      const n = lm.length || 1;
+      return { x: sx/n, y: sy/n }; // 0..1 (비디오 공간)
+    }
+
+    // ====== 드로잉 ======
+    function drawEyes() {
+      const w = canvas.width, h = canvas.height;
+      const minDim = Math.min(w, h);
+      const cx = w * 0.5, cy = h * 0.5;
+
+      const eyeGap = minDim * state.eyeGapFactor;
+      const eyeballR = minDim * state.eyeballRFactor;
+      const pupilR  = minDim * state.pupilRFactor;
+      const maxOffset = eyeballR - pupilR - (eyeballR * 0.15); // 동공이 흰자 밖으로 안 나가도록
+      state.pupilMaxOffset = maxOffset;
+
+      const leftEye  = { x: cx - eyeGap*0.5, y: cy };
+      const rightEye = { x: cx + eyeGap*0.5, y: cy };
+
+      // 부드럽게(EMA)
+      const alpha = 0.2;
+      state.smoothedX = state.smoothedX + alpha * (state.targetX - state.smoothedX);
+      state.smoothedY = state.smoothedY + alpha * (state.targetY - state.smoothedY);
+
+      // ✅ 화면 중앙 기준 전역 오프셋 (두 눈에 동일 적용)
+      let gdx = state.smoothedX - cx;
+      let gdy = state.smoothedY - cy;
+
+      // 전역 오프셋을 maxOffset 안으로 클램핑
+      const glen = Math.hypot(gdx, gdy) || 1;
+      if (glen > maxOffset) {
+        const k = maxOffset / glen;
+        gdx *= k; gdy *= k;
+      }
+
+      // 최종 동공 위치(양쪽 눈 동일 오프셋)
+      const lp = { x: leftEye.x  + gdx, y: leftEye.y  + gdy };
+      const rp = { x: rightEye.x + gdx, y: rightEye.y + gdy };
+
+      // 배경
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0,0,w,h);
+
+      // 흰자
+      ctx.fillStyle = "#fff";
+      for (const E of [leftEye, rightEye]) {
+        ctx.beginPath();
+        ctx.arc(E.x, E.y, eyeballR, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      // 동공
+      ctx.fillStyle = "#000";
+      for (const P of [lp, rp]) {
+        ctx.beginPath();
+        ctx.arc(P.x, P.y, pupilR, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    // ====== 메인 루프 ======
+    let lastVideoTime = -1;
+    function loop() {
+      requestAnimationFrame(loop);
+      if (!faceLandmarker || video.readyState < 2) {
+        drawEyes(); // 초기엔 중앙 응시
+        return;
+      }
+
+      const now = performance.now();
+      const vTime = video.currentTime;
+      if (vTime === lastVideoTime) { // 같은 프레임 중복 추론 방지
+        drawEyes();
+        return;
+      }
+      lastVideoTime = vTime;
+
+      const results = faceLandmarker.detectForVideo(video, now);
+      const faces = results?.faceLandmarks || [];
+      const closest = pickClosestFace(faces);
+
+      if (closest) {
+        const m = meanPoint(closest);        // 0..1 비디오 좌표
+        const mx = mirrorX ? (1 - m.x) : m.x;
+
+        // 캔버스 중앙
+        const cx = canvas.width * 0.5;
+        const cy = canvas.height * 0.5;
+
+        // 눈동자가 움직일 "시야 범위" (너무 크면 구석에 붙어 보임)
+        // minDim의 10~18% 정도가 자연스러워요. 필요하면 숫자만 조절!
+        const minDim = Math.min(canvas.width, canvas.height);
+        const gazeRange = minDim * 0.16;
+
+        // 얼굴의 좌표 변화를 중앙 기준의 작은 오프로 변환
+        const offX = (mx - 0.5) * gazeRange;
+        const offY = (m.y - 0.5) * gazeRange;
+
+        // 최종 타깃: 중앙 + 제한된 오프셋
+        state.targetX = cx + offX;
+        state.targetY = cy + offY;
+        state.hasFace = true;
+      } else {
+        // 사람이 없으면 중앙으로 복귀
+        state.targetX = canvas.width * 0.5;
+        state.targetY = canvas.height * 0.5;
+        state.hasFace = false;
+      }
+
+
+      drawEyes();
+    }
+
+    // ====== 실행 ======
+    (async () => {
+      try {
+        await initCamera();
+        await initFaceLandmarker();
+        // 초기 타깃을 중앙으로
+        state.targetX = canvas.width * 0.5;
+        state.targetY = canvas.height * 0.5;
+        state.smoothedX = state.targetX;
+        state.smoothedY = state.targetY;
+        loop();
+      } catch (err) {
+        console.error(err);
+        alert("초기화 실패: " + (err?.message || err));
+      }
+    })();
+  </script>
+</body>
+</html>
