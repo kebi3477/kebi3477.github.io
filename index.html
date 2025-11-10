@@ -3,29 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <title>Eyes Follow You – MediaPipe (Web)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- 더 넓게 채우기 (노치/세이프 에어리어 포함) -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <!-- iOS 홈화면 앱 전용 옵션 -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="/manifest.webmanifest">
-
   <style>
-    html, body {
-      margin:0;
-      height:100%;
-      background:#000;
-    }
-    body { 
-      /* 홈화면 앱에서 상단/하단 안전영역까지 덮음 */
+    html, body { margin:0; height:100%; background:#000; }
+    body {
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       padding-left: env(safe-area-inset-left);
       padding-right: env(safe-area-inset-right);
     }
     canvas { display:block; width:100vw; height:100vh; }
-    /* 웹캠 영상은 화면에 보이지 않게 숨김 */
     video { position:fixed; right:0; bottom:0; width:1px; height:1px; opacity:0; pointer-events:none; }
     .hint {
       position: fixed; left: 12px; bottom: 12px; color:#888; font: 12px/1.3 system-ui, sans-serif;
@@ -38,7 +28,6 @@
       backdrop-filter: blur(4px); cursor: pointer;
     }
     .fs-btn:active{ transform: scale(0.98); }
-
   </style>
 </head>
 <body>
@@ -47,14 +36,24 @@
   <div class="hint">카메라 권한을 허용하세요. 사람이 없으면 중앙을 보다가, 나타나면 시선을 따라갑니다.</div>
   <button id="fsBtn" class="fs-btn" aria-label="전체화면 전환">⤢</button>
 
-  <!-- MediaPipe Tasks Vision (ES Module) -->
   <script type="module">
-    import {
-      FaceLandmarker,
-      FilesetResolver
-    } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs";
+    import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs";
 
-    // ====== 기본 DOM / 캔버스 세팅 ======
+    // ====== 깜빡임/모양 파라미터(원하는 대로 튜닝) ======
+    const BLINK_MIN = 2500;      // ms
+    const BLINK_MAX = 5000;      // ms
+    const BLINK_DURATION = 220;  // 닫힘→열림 총 시간(ms)
+
+    const eyeScale = 3;              // 전체 눈 크기 배수
+    const gapScale = 3;              // 눈 사이 간격 배수
+    const pupilEdgePadding = 0.15;   // 동공이 흰자 밖으로 나가지 않게 여유
+
+    const eyeWidthFactor  = 1.45;    // 마름모 가로 폭(넓힐수록 더 길쭉)
+    const eyeHeightFactor = 0.82;    // 마름모 세로 폭(줄일수록 더 날카로움)
+    const cornerRound     = 0.9;    // 꼭짓점 둥근 정도(무서움↑면 낮춰 0.06~0.08)
+    const edgeBulge       = 0;    // 변(가장자리) 팽팽한 곡률(0=직선, 0.1~0.18 권장)
+
+    // ====== 캔버스 ======
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d', { alpha:false });
@@ -70,19 +69,21 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // ====== 눈(그래픽) 파라미터 ======
+    // ====== 상태(요청 수치 반영) ======
     const state = {
-      eyeGapFactor: 0.22,     // 두 눈 사이 간격 (짧은 변 * 이 값)
-      eyeballRFactor: 0.09,   // 흰자 반지름
-      pupilRFactor: 0.04,     // 동공 반지름
-      pupilMaxOffset: 0.0,    // 계산 후 채움
+      eyeGapFactor: 0.3,      // ← 요청 값
+      eyeballRFactor: 0.09,   // ← 요청 값
+      pupilRFactor: 0.035,     // ← 요청 값
       targetX: 0, targetY: 0,
-      smoothedX: 0, smoothedY: 0, // EMA로 부드럽게
+      smoothedX: 0, smoothedY: 0, // EMA
       hasFace: false,
+      nextBlinkAt: 0,
+      blinking: false,
+      blinkStart: 0
     };
 
-    // ====== 카메라 시작 & mirrorX 판정 ======
-    let mirrorX = true; // 전면 카메라면 true, 후면이면 false
+    // ====== 카메라 & 미러 판정 ======
+    let mirrorX = true;
     async function initCamera() {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: {ideal: 1280}, height: {ideal: 720} },
@@ -90,25 +91,19 @@
       });
       video.srcObject = stream;
       await video.play();
-
       const track = stream.getVideoTracks()[0];
       const settings = track?.getSettings?.() || {};
-      // facingMode가 'environment'면 후면 → 좌우 반전 필요 없음
       mirrorX = (settings.facingMode || "user") !== "environment";
     }
 
-    // ====== MediaPipe Face Landmarker 로드 ======
+    // ====== MediaPipe ======
     let faceLandmarker;
     async function initFaceLandmarker() {
       const filesetResolver = await FilesetResolver.forVisionTasks(
-        // wasm 런타임 로더(CDN). 막히면 아래 주석(unpkg)로 교체 가능
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-        // "https://unpkg.com/@mediapipe/tasks-vision@latest/wasm"
       );
-
       faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
         baseOptions: {
-          // 공식 모델 URL(GCS) — 404 안 남
           modelAssetPath:
             "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
         },
@@ -119,13 +114,13 @@
       });
     }
 
-    // ====== 유틸: 가장 "가까운" 얼굴 고르기 (랜드마크 박스 면적 기준) ======
+    // ====== 유틸 ======
     function pickClosestFace(faces) {
       if (!faces || faces.length === 0) return null;
       let best = null, bestScore = -1;
       for (const lm of faces) {
         let minX=1, minY=1, maxX=0, maxY=0;
-        for (const p of lm) { // p.x, p.y (0..1)
+        for (const p of lm) {
           if (p.x < minX) minX = p.x;
           if (p.x > maxX) maxX = p.x;
           if (p.y < minY) minY = p.y;
@@ -136,13 +131,65 @@
       }
       return best;
     }
-
-    // ====== 유틸: 랜드마크들의 평균(대충 얼굴 중심) ======
     function meanPoint(lm) {
       let sx=0, sy=0;
       for (const p of lm) { sx += p.x; sy += p.y; }
       const n = lm.length || 1;
-      return { x: sx/n, y: sy/n }; // 0..1 (비디오 공간)
+      return { x: sx/n, y: sy/n };
+    }
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // ====== ‘둥근 마름모’ 경로 (변은 살짝 볼록, 꼭짓점만 라운드) ======
+    function roundedDiamondPath(ctx, cx, cy, rx, ry, corner=0.08, bulge=0.12) {
+      // 꼭짓점
+      const T = [cx, cy - ry], R = [cx + rx, cy], B = [cx, cy + ry], L = [cx - rx, cy];
+      const l = corner * Math.min(rx, ry);
+
+      const mv = (a, b, d) => { // a->b로 d만큼 이동한 점
+        const vx = b[0]-a[0], vy = b[1]-a[1];
+        const len = Math.hypot(vx,vy)||1; const t = d/len;
+        return [a[0]+vx*t, a[1]+vy*t];
+      };
+      const mid = (a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+      const bulgeCtrl = (a,b,center,amt)=>{ // a~b 중간점에서 외곽 방향으로 amt만큼 밀기
+        const m = mid(a,b);
+        const nx = m[0]-center[0], ny = m[1]-center[1];
+        const nlen = Math.hypot(nx,ny)||1;
+        const k = (amt*Math.min(rx,ry))/nlen;
+        return [m[0]+nx*k, m[1]+ny*k];
+      };
+
+      // 각 변의 시작/끝(코너에서 살짝 떨어진 점)
+      const TR1=mv(T,R,l), RT1=mv(R,T,l);
+      const RB1=mv(R,B,l), BR1=mv(B,R,l);
+      const BL1=mv(B,L,l), LB1=mv(L,B,l);
+      const LT1=mv(L,T,l), TL1=mv(T,L,l);
+
+      // 각 변의 가운데 bulge control
+      const C_TR = bulgeCtrl(TR1,RT1,[cx,cy],bulge);
+      const C_RB = bulgeCtrl(RB1,BR1,[cx,cy],bulge);
+      const C_BL = bulgeCtrl(BL1,LB1,[cx,cy],bulge);
+      const C_LT = bulgeCtrl(LT1,TL1,[cx,cy],bulge);
+
+      ctx.beginPath();
+      // 위→오른쪽 변(볼록)
+      ctx.moveTo(...TR1); ctx.quadraticCurveTo(...C_TR, ...RT1);
+      // R 꼭짓점 라운드
+      ctx.quadraticCurveTo(...R, ...RB1);
+      // 오른쪽→아래 변
+      ctx.quadraticCurveTo(...C_RB, ...BR1);
+      // B 라운드
+      ctx.quadraticCurveTo(...B, ...BL1);
+      // 아래→왼쪽 변
+      ctx.quadraticCurveTo(...C_BL, ...LB1);
+      // L 라운드
+      ctx.quadraticCurveTo(...L, ...LT1);
+      // 왼쪽→위 변
+      ctx.quadraticCurveTo(...C_LT, ...TL1);
+      // T 라운드로 닫기
+      ctx.quadraticCurveTo(...T, ...TR1);
     }
 
     // ====== 드로잉 ======
@@ -151,78 +198,98 @@
       const minDim = Math.min(w, h);
       const cx = w * 0.5, cy = h * 0.5;
 
-      // === 크기 & 간격 계산 ===
-      const eyeScale = 3;          // 눈 크기 3배
-      const gapScale = 3;          // 간격도 3배(원하면 2~3 사이로 조절)
-
-      const gapBase  = minDim * state.eyeGapFactor;            // 기존 기준 간격
+      // 크기 & 간격
+      const gapBase  = minDim * state.eyeGapFactor;
       const R_want   = minDim * state.eyeballRFactor * eyeScale;
 
-      // 화면 넘치지 않게 흰자 반지름 클램프
       const marginW = w * 0.05;
       const marginH = Math.max(h * 0.10, 20);
       const maxR_byWidth  = Math.max(1, ((w - marginW*2) - gapBase) / 2);
       const maxR_byHeight = (h - marginH*2) * 0.5;
       const eyeballR = Math.min(R_want, maxR_byWidth, maxR_byHeight);
 
-      // 동공은 비율 유지
       const pupilRatio = state.pupilRFactor / state.eyeballRFactor;
       const pupilR = eyeballR * pupilRatio;
 
-      // ✅ 간격: (1) 눈 크기에 비례해 확장, (2) 최소 간격 보장, (3) 화면 안으로 클램프
-      const gapPadFactor = 0.08; // 두 눈 사이 여백(짧은 변 * 8%) — 필요하면 0.06~0.12로 조절
+      const gapPadFactor = 0.08;
       let eyeGap = Math.max(
-        gapBase * gapScale,                // 크기 비례 확장
-        2 * eyeballR + minDim * gapPadFactor // 서로 겹치지 않게 최소 간격
+        gapBase * gapScale,
+        2 * eyeballR + minDim * gapPadFactor
       );
-      // 화면 가로 한계 내에서만
       eyeGap = Math.min(eyeGap, (w - marginW*2));
 
-      // 좌우 눈 중심
       const leftEye  = { x: cx - eyeGap*0.5, y: cy };
       const rightEye = { x: cx + eyeGap*0.5, y: cy };
 
-      // 이후 maxOffset, 스무딩, 전역 오프셋(gdx,gdy) 계산 및 그리기 로직은 그대로
-      const maxOffset = eyeballR - pupilR - (eyeballR * 0.15);
-      state.pupilMaxOffset = maxOffset;
-
-      // 스무딩
+      // 타깃 스무딩
       const alpha = 0.2;
       state.smoothedX += alpha * (state.targetX - state.smoothedX);
       state.smoothedY += alpha * (state.targetY - state.smoothedY);
 
-      // 중앙 기준 전역 오프셋(양쪽 동일)
+      // 전역 오프셋
       let gdx = state.smoothedX - cx;
       let gdy = state.smoothedY - cy;
+
+      const maxOffset = eyeballR - pupilR - (eyeballR * pupilEdgePadding);
       const glen = Math.hypot(gdx, gdy) || 1;
       if (glen > maxOffset) { const k = maxOffset / glen; gdx *= k; gdy *= k; }
 
       const lp = { x: leftEye.x  + gdx, y: leftEye.y  + gdy };
       const rp = { x: rightEye.x + gdx, y: rightEye.y + gdy };
 
-      // 그리기
+      // 깜빡임
+      const now = performance.now();
+      if (!state.nextBlinkAt) state.nextBlinkAt = now + randInt(BLINK_MIN, BLINK_MAX);
+      if (!state.blinking && now >= state.nextBlinkAt) {
+        state.blinking = true; state.blinkStart = now;
+      }
+      let blinkAmt = 0;
+      if (state.blinking) {
+        const p = Math.min(1, (now - state.blinkStart) / BLINK_DURATION);
+        blinkAmt = p < 0.5 ? (p*2) : (1-p)*2;
+        if (p >= 1) { state.blinking = false; state.nextBlinkAt = now + randInt(BLINK_MIN, BLINK_MAX); blinkAmt = 0; }
+      }
+      const minOpen = 0.08;
+      const openScale = Math.max(minOpen, 1 - blinkAmt);
+
+      // 마름모 반경(세로는 깜빡임 적용)
+      const rx = eyeballR * eyeWidthFactor;
+      const ry = eyeballR * eyeHeightFactor * openScale;
+
+      // === 렌더 ===
       ctx.fillStyle = "#000"; ctx.fillRect(0,0,w,h);
-      ctx.fillStyle = "#fff";
-      for (const E of [leftEye, rightEye]) { ctx.beginPath(); ctx.arc(E.x,E.y,eyeballR,0,Math.PI*2); ctx.fill(); }
-      ctx.fillStyle = "#000";
-      for (const P of [lp, rp]) { ctx.beginPath(); ctx.arc(P.x,P.y,pupilR,0,Math.PI*2); ctx.fill(); }
+
+      for (const eye of [leftEye, rightEye]) {
+        // 흰자(둥근 마름모)
+        ctx.fillStyle = "#fff";
+        roundedDiamondPath(ctx, eye.x, eye.y, rx, ry, cornerRound, edgeBulge);
+        ctx.fill();
+
+        // 클립 후 동공
+        ctx.save();
+        roundedDiamondPath(ctx, eye.x, eye.y, rx, ry, cornerRound, edgeBulge);
+        ctx.clip();
+
+        const px = (eye === leftEye ? lp.x : rp.x);
+        const py = (eye === leftEye ? lp.y : rp.y);
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(px, py, pupilR, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+      }
     }
 
-    // ====== 메인 루프 ======
+    // ====== 루프 ======
     let lastVideoTime = -1;
     function loop() {
       requestAnimationFrame(loop);
-      if (!faceLandmarker || video.readyState < 2) {
-        drawEyes(); // 초기엔 중앙 응시
-        return;
-      }
+      if (!faceLandmarker || video.readyState < 2) { drawEyes(); return; }
 
       const now = performance.now();
       const vTime = video.currentTime;
-      if (vTime === lastVideoTime) { // 같은 프레임 중복 추론 방지
-        drawEyes();
-        return;
-      }
+      if (vTime === lastVideoTime) { drawEyes(); return; }
       lastVideoTime = vTime;
 
       const results = faceLandmarker.detectForVideo(video, now);
@@ -230,33 +297,25 @@
       const closest = pickClosestFace(faces);
 
       if (closest) {
-        const m = meanPoint(closest);        // 0..1 비디오 좌표
+        const m = meanPoint(closest);
         const mx = mirrorX ? (1 - m.x) : m.x;
 
-        // 캔버스 중앙
         const cx = canvas.width * 0.5;
         const cy = canvas.height * 0.5;
 
-        // 눈동자가 움직일 "시야 범위" (너무 크면 구석에 붙어 보임)
-        // minDim의 10~18% 정도가 자연스러워요. 필요하면 숫자만 조절!
         const minDim = Math.min(canvas.width, canvas.height);
         const gazeRange = minDim * 0.16;
-
-        // 얼굴의 좌표 변화를 중앙 기준의 작은 오프로 변환
         const offX = (mx - 0.5) * gazeRange;
         const offY = (m.y - 0.5) * gazeRange;
 
-        // 최종 타깃: 중앙 + 제한된 오프셋
         state.targetX = cx + offX;
         state.targetY = cy + offY;
         state.hasFace = true;
       } else {
-        // 사람이 없으면 중앙으로 복귀
         state.targetX = canvas.width * 0.5;
         state.targetY = canvas.height * 0.5;
         state.hasFace = false;
       }
-
 
       drawEyes();
     }
@@ -266,7 +325,6 @@
       try {
         await initCamera();
         await initFaceLandmarker();
-        // 초기 타깃을 중앙으로
         state.targetX = canvas.width * 0.5;
         state.targetY = canvas.height * 0.5;
         state.smoothedX = state.targetX;
@@ -278,45 +336,35 @@
       }
     })();
 
-    // ====== 전체화면 토글 (F11 느낌) ======
+    // ====== 전체화면 토글 ======
     function isFullscreen() {
       return document.fullscreenElement || document.webkitFullscreenElement;
     }
-
     async function enterFullscreen(el = document.documentElement) {
       try {
         if (el.requestFullscreen) await el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen(); // iPad Safari
-      } catch (e) {
-        console.warn('enter FS fail:', e);
-      }
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+      } catch (e) { console.warn('enter FS fail:', e); }
     }
-
     async function exitFullscreen() {
       try {
         if (document.exitFullscreen) await document.exitFullscreen();
         else if (document.webkitExitFullscreen) await document.webkitExitFullscreen();
-      } catch (e) {
-        console.warn('exit FS fail:', e);
-      }
+      } catch (e) { console.warn('exit FS fail:', e); }
     }
-
     async function toggleFullscreen() {
       if (isFullscreen()) await exitFullscreen();
-      else await enterFullscreen(document.documentElement); // 또는 canvas
+      else await enterFullscreen(document.documentElement);
     }
-
-    // 버튼 이벤트
     document.getElementById('fsBtn')?.addEventListener('click', toggleFullscreen);
 
-    // iPad에서 제스처로도 쉽게: 캔버스 더블탭 시 토글(선택)
+    // 더블탭 토글
     let lastTap = 0;
     canvas.addEventListener('pointerdown', () => {
       const now = performance.now();
       if (now - lastTap < 300) toggleFullscreen();
       lastTap = now;
     });
-
   </script>
 </body>
 </html>
