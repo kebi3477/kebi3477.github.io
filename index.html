@@ -4,8 +4,26 @@
   <meta charset="utf-8" />
   <title>Eyes Follow You – MediaPipe (Web)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- 더 넓게 채우기 (노치/세이프 에어리어 포함) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- iOS 홈화면 앱 전용 옵션 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.webmanifest">
+
   <style>
-    html, body { margin:0; height:100%; background:#000; overflow:hidden; }
+    html, body {
+      margin:0;
+      height:100%;
+      background:#000;
+    }
+    body { 
+      /* 홈화면 앱에서 상단/하단 안전영역까지 덮음 */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
     canvas { display:block; width:100vw; height:100vh; }
     /* 웹캠 영상은 화면에 보이지 않게 숨김 */
     video { position:fixed; right:0; bottom:0; width:1px; height:1px; opacity:0; pointer-events:none; }
@@ -27,7 +45,7 @@
   <canvas id="stage"></canvas>
   <video id="webcam" autoplay playsinline></video>
   <div class="hint">카메라 권한을 허용하세요. 사람이 없으면 중앙을 보다가, 나타나면 시선을 따라갑니다.</div>
-  <button id="fsBtn" class="fs-btn" aria-label="전체화면 전환">전체화면</button>
+  <button id="fsBtn" class="fs-btn" aria-label="전체화면 전환">⤢</button>
 
   <!-- MediaPipe Tasks Vision (ES Module) -->
   <script type="module">
