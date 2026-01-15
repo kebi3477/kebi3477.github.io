@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Body Position Monitor</title>
+  <style>
+    body{font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin:20px; color:#222}
+    h1{margin:0 0 12px 0}
+    .panel{display:flex;gap:20px;align-items:flex-start}
+    .indicators{display:flex;gap:10px}
+    .zone-btn{width:120px;height:80px;border-radius:8px;border:1px solid #ccc;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-weight:600;cursor:default}
+    .zone-btn.active{background:#3ac569;color:#fff;border-color:#2da84a;box-shadow:0 4px 8px rgba(45,168,74,0.15)}
+    .status{min-width:320px;padding:12px;border:1px solid #eee;background:#fafafa;border-radius:8px}
+    .status p{margin:6px 0}
+    pre{background:#111;color:#dff7d8;padding:10px;border-radius:6px;overflow:auto;max-height:160px}
+    .logs{margin-top:18px;border:1px solid #eee;padding:10px;border-radius:8px;background:#fafafa;height:180px;overflow:auto}
+    .log-item{font-family:monospace;font-size:12px;padding:4px 0;border-bottom:1px dashed #eee}
+    .controls{margin-top:12px;display:flex;gap:8px}
+    .btn{padding:8px 12px;border-radius:6px;border:1px solid #ccc;background:#fff;cursor:pointer}
+    .small{font-size:12px;color:#666}
+  </style>
+</head>
+<body>
+  <!--
+    body.html
+    - TouchDesigner에서 들어오는 position 메시지를 받아 zone 판정 후 Ableton에 보낼 값을 계산하여 화면에 표시합니다.
+    - 우선 preload의 `window.api.on('td:position', cb)` 호출을 사용하도록 시도하고, 없으면 WebSocket(ws://127.0.0.1:7000)으로 연결합니다.
+    - TODO: 실제 Ableton 전송 연결 지점은 명확히 표시되어 있습니다.
+  -->
+
+  <h1>Body Position Monitor</h1>
+
+  <div style="margin:10px 0;padding:10px;border:1px dashed #e5e5e5;border-radius:8px;background:#fff">
+    <strong>Camera (선택)</strong>
+    <div style="margin-top:8px;display:flex;gap:10px;align-items:center">
+      <div style="position:relative">
+        <video id="cameraVideo" autoplay playsinline style="width:320px;height:180px;background:#000;border-radius:6px;object-fit:cover;display:block"></video>
+        <canvas id="overlay" width="320" height="180" style="position:absolute;left:0;top:0;pointer-events:none"></canvas>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div>
+          <button id="camStart" class="btn">Start Camera</button>
+          <button id="camStop" class="btn">Stop Camera</button>
+        </div>
+        <div class="small">비디오에서 클릭하면 x 좌표를 계산하여 zone 판정합니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="indicators">
+      <div id="leftBtn" class="zone-btn">Left</div>
+      <div id="centerBtn" class="zone-btn">Center</div>
+      <div id="rightBtn" class="zone-btn">Right</div>
+    </div>
+
+    <div class="status">
+      <p><strong>현재 Zone:</strong> <span id="currentZone">-</span></p>
+      <p><strong>마지막 업데이트:</strong> <span id="lastTime">-</span></p>
+      <p><strong>Ableton 전송값(임시):</strong></p>
+      <pre id="abletonVal">-</pre>
+    </div>
+  </div>
+
+  <div style="margin-top:14px">
+    <p class="small">원본 Payload (마지막):</p>
+    <pre id="rawPayload">-</pre>
+  </div>
+
+  <div class="controls">
+    <button id="simLeft" class="btn">Simulate Left</button>
+    <button id="simCenter" class="btn">Simulate Center</button>
+    <button id="simRight" class="btn">Simulate Right</button>
+    <button id="simX" class="btn">Simulate random x</button>
+  </div>
+
+  <h3 style="margin-top:18px">Debug Log (최근 10개)</h3>
+  <div id="logs" class="logs"></div>
+
+  <script>
+    // UI refs
+    const leftBtn = document.getElementById('leftBtn');
+    const centerBtn = document.getElementById('centerBtn');
+    const rightBtn = document.getElementById('rightBtn');
+    const currentZoneEl = document.getElementById('currentZone');
+    const rawPayloadEl = document.getElementById('rawPayload');
+    const abletonValEl = document.getElementById('abletonVal');
+    const lastTimeEl = document.getElementById('lastTime');
+    const logsEl = document.getElementById('logs');
+
+    const MAX_LOG = 10;
+    const logItems = [];
+
+    function addLog(text){
+      const ts = new Date().toLocaleTimeString();
+      logItems.unshift({t:ts,text});
+      if(logItems.length>MAX_LOG) logItems.pop();
+      renderLogs();
+    }
+    function renderLogs(){
+      logsEl.innerHTML = '';
+      for(const it of logItems){
+        const div = document.createElement('div');
+        div.className='log-item';
+        div.textContent = `[${it.t}] ${it.text}`;
+        logsEl.appendChild(div);
+      }
+    }
+
+    function setActiveZone(zone){
+      leftBtn.classList.remove('active');
+      centerBtn.classList.remove('active');
+      rightBtn.classList.remove('active');
+      if(zone==='left') leftBtn.classList.add('active');
+      if(zone==='center') centerBtn.classList.add('active');
+      if(zone==='right') rightBtn.classList.add('active');
+      currentZoneEl.textContent = zone || '-';
+    }
+
+    function pretty(obj){
+      try{return JSON.stringify(obj,null,2);}catch(e){return String(obj)}
+    }
+
+    // zone 판정 로직
+    function determineZone(payload){
+      if(!payload) return null;
+      if(typeof payload.zone === 'string'){
+        const z = payload.zone.toLowerCase();
+        if(z==='left' || z==='center' || z==='right') return z;
+      }
+      if(typeof payload.x === 'number'){
+        const x = payload.x;
+        if(x < -0.33) return 'left';
+        if(x > 0.33) return 'right';
+        return 'center';
+      }
+      return null;
+    }
+
+    // Ableton 임시값 계산 (예: left=1, center=2, right=3)
+    function calcAbletonValue(zone){
+      const map = {left:1,center:2,right:3};
+      const n = map[zone] || 0;
+      // 예시 JSON 포맷도 함께 제공
+      return {intValue:n, ableton:{scene:n, clip:0}};
+    }
+
+    let lastPayload = null;
+    function handlePayload(raw){
+      let payload = raw;
+      if(typeof raw === 'string'){
+        try{ payload = JSON.parse(raw); }catch(e){ payload = {rawString: raw}; }
+      }
+      lastPayload = payload;
+      const zone = determineZone(payload) || 'center';
+      const ableton = calcAbletonValue(zone);
+      const now = new Date();
+
+      // 화면 업데이트
+      setActiveZone(zone);
+      rawPayloadEl.textContent = pretty(payload);
+      abletonValEl.textContent = pretty(ableton);
+      lastTimeEl.textContent = now.toLocaleString();
+
+      addLog(`zone=${zone} payload=${pretty(payload)}`);
+
+      // TODO: 실제 Ableton 전송 연결 지점
+      // 이곳에서 Ableton에 OSC / MIDI / Ableton Link 등으로 전송을 구현하세요.
+      // 예: sendToAbleton(ableton) 함수 호출
+    }
+
+    // 통신 핸들링: preload 우선, 없으면 WebSocket
+    function setupComm(){
+      try{
+        if(window.api && typeof window.api.on === 'function'){
+          addLog('Using preload window.api for td:position');
+          // preload가 객체를 JSON으로 전달할 수도 있고, 이미 파싱된 객체를 전달할 수도 있음
+          window.api.on('td:position', (data) => {
+            handlePayload(data);
+          });
+          return;
+        }
+      }catch(e){
+        console.warn('preload check failed', e);
+      }
+
+      // fallback WebSocket
+      const WS_URL = 'ws://127.0.0.1:7000';
+      try{
+        const ws = new WebSocket(WS_URL);
+        ws.addEventListener('open', ()=> addLog('WebSocket connected to '+WS_URL));
+        ws.addEventListener('message', (ev)=>{
+          // ev.data might be string or already object depending on server
+          let d = ev.data;
+          // try parse JSON string
+          if(typeof d === 'string'){
+            try{ d = JSON.parse(d); }catch(e){ /* keep string */ }
+          }
+          handlePayload(d);
+        });
+        ws.addEventListener('close', ()=> addLog('WebSocket closed'));
+        ws.addEventListener('error', (e)=> addLog('WebSocket error'));
+      }catch(e){
+        addLog('WebSocket setup failed: '+e.message);
+      }
+    }
+
+    // 시뮬레이터 버튼들 (개발용)
+    document.getElementById('simLeft').addEventListener('click', ()=> handlePayload({zone:'left',distance:1}));
+    document.getElementById('simCenter').addEventListener('click', ()=> handlePayload({zone:'center',distance:1}));
+    document.getElementById('simRight').addEventListener('click', ()=> handlePayload({zone:'right',distance:1}));
+    document.getElementById('simX').addEventListener('click', ()=> {
+      const x = (Math.random()*2-1).toFixed(2)*1; // -1..1
+      handlePayload({x, distance: Math.random()*3});
+    });
+
+    // Camera support: start/stop and click to send x
+    const camStart = document.getElementById('camStart');
+    const camStop = document.getElementById('camStop');
+    const video = document.getElementById('cameraVideo');
+    let streamRef = null;
+
+    async function startCamera(){
+      try{
+        const s = await navigator.mediaDevices.getUserMedia({video:{width:640,height:360}, audio:false});
+        streamRef = s;
+        video.srcObject = s;
+        // when metadata loaded, sync overlay canvas resolution to video intrinsic size
+        video.addEventListener('loadedmetadata', ()=>{
+          try{
+            // set canvas pixel size to video intrinsic size for 1:1 mapping
+            overlay.width = video.videoWidth || overlay.width;
+            overlay.height = video.videoHeight || overlay.height;
+            // match CSS display size to element size
+            overlay.style.width = video.clientWidth + 'px';
+            overlay.style.height = video.clientHeight + 'px';
+            addLog(`Camera metadata: video ${video.videoWidth}x${video.videoHeight}, display ${video.clientWidth}x${video.clientHeight}`);
+          }catch(e){ console.warn(e); }
+        });
+        addLog('Camera started');
+      }catch(e){
+        addLog('Camera error: '+(e.message||e));
+      }
+    }
+    function stopCamera(){
+      if(streamRef){
+        for(const t of streamRef.getTracks()) t.stop();
+        streamRef = null;
+        video.srcObject = null;
+        addLog('Camera stopped');
+      }
+    }
+
+    video.addEventListener('click', (ev)=>{
+      const rect = video.getBoundingClientRect();
+      const cx = ev.clientX - rect.left;
+      const rel = cx / rect.width; // 0..1
+      const x = (rel * 2) - 1; // -1 .. 1
+      handlePayload({x: Number(x.toFixed(2)), source: 'camera-click'});
+      addLog(`camera click x=${x.toFixed(2)}`);
+    });
+
+    camStart.addEventListener('click', startCamera);
+    camStop.addEventListener('click', stopCamera);
+
+    // 초기화
+    addLog('UI ready');
+    setupComm();
+  </script>
+  <!-- TensorFlow.js & BlazeFace for simple face-based X tracking -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
+  <script>
+    // Auto-tracking using BlazeFace (face center x) to determine zone automatically
+    let model = null;
+    let autoTrack = false;
+    let detectInterval = 200; // ms
+    let detectTimer = null;
+
+    const overlay = document.getElementById('overlay');
+    const octx = overlay.getContext('2d');
+
+    async function loadModel(){
+      try{
+        addLog('Loading BlazeFace model...');
+        model = await blazeface.load();
+        addLog('BlazeFace loaded');
+      }catch(e){
+        addLog('Model load error: '+e.message);
+      }
+    }
+
+    async function runDetectionOnce(){
+      if(!model || !video || video.readyState < 2) return;
+      try{
+        const returnTensors = false;
+        const predictions = await model.estimateFaces(video, returnTensors);
+        // clear overlay
+        octx.clearRect(0,0,overlay.width,overlay.height);
+        if(predictions && predictions.length>0){
+          // use first face
+          const p = predictions[0];
+          // p.topLeft [x,y], p.bottomRight [x,y]
+          const tl = p.topLeft;
+          const br = p.bottomRight;
+          const cx = (tl[0] + br[0]) / 2;
+          const cy = (tl[1] + br[1]) / 2;
+          // draw box
+          octx.strokeStyle = 'lime';
+          octx.lineWidth = 2;
+          // draw scaled box (model coords are relative to video intrinsic size)
+          const scaleX = overlay.width / video.videoWidth || 1;
+          const scaleY = overlay.height / video.videoHeight || 1;
+          octx.strokeRect(tl[0]*scaleX, tl[1]*scaleY, (br[0]-tl[0])*scaleX, (br[1]-tl[1])*scaleY);
+          octx.fillStyle = 'rgba(0,255,0,0.2)';
+          octx.fillRect(tl[0]*scaleX, tl[1]*scaleY, (br[0]-tl[0])*scaleX, (br[1]-tl[1])*scaleY);
+          // normalized x -1..1 using video.videoWidth (intrinsic)
+          const rel = cx / (video.videoWidth || overlay.width);
+          const xnorm = (rel * 2) - 1;
+          handlePayload({x: Number(xnorm.toFixed(2)), source: 'blazeface'});
+        }
+      }catch(e){
+        console.warn('detect error', e);
+      }
+    }
+
+    function startAutoTrack(){
+      if(!model) loadModel().then(()=>{
+        autoTrack = true;
+        detectTimer = setInterval(runDetectionOnce, detectInterval);
+        addLog('AutoTrack started');
+      });
+      else{
+        autoTrack = true;
+        detectTimer = setInterval(runDetectionOnce, detectInterval);
+        addLog('AutoTrack started');
+      }
+    }
+    function stopAutoTrack(){
+      autoTrack = false;
+      if(detectTimer){ clearInterval(detectTimer); detectTimer = null; }
+      octx.clearRect(0,0,overlay.width,overlay.height);
+      addLog('AutoTrack stopped');
+    }
+
+    // add UI toggle button
+    const autoBtn = document.createElement('button');
+    autoBtn.className='btn';
+    autoBtn.textContent = 'Start AutoTrack';
+    autoBtn.style.marginTop = '6px';
+    autoBtn.addEventListener('click', ()=>{
+      if(!autoTrack){ startAutoTrack(); autoBtn.textContent='Stop AutoTrack'; }
+      else{ stopAutoTrack(); autoBtn.textContent='Start AutoTrack'; }
+    });
+    document.querySelector('.controls').appendChild(autoBtn);
+  </script>
+  <!-- Pose detection (MoveNet) for full-body based X tracking -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+  <script>
+    let poseDetector = null;
+    let poseActive = false;
+    let poseLoopId = null;
+
+    async function loadPoseDetector(){
+      if(poseDetector) return poseDetector;
+      try{
+        addLog('Loading MoveNet pose detector...');
+        const model = poseDetection.SupportedModels.MoveNet;
+        poseDetector = await poseDetection.createDetector(model, {modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING});
+        addLog('MoveNet detector loaded');
+        return poseDetector;
+      }catch(e){
+        addLog('Pose model load error: '+(e.message||e));
+      }
+    }
+
+    async function poseLoop(){
+      if(!poseActive || !poseDetector || !video || video.readyState < 2) return;
+      try{
+        const poses = await poseDetector.estimatePoses(video);
+        octx.clearRect(0,0,overlay.width,overlay.height);
+        if(poses && poses.length>0){
+          const p = poses[0];
+          // keypoints array: use hips if available, otherwise shoulders
+          const k = p.keypoints || [];
+          function kp(i){ return k[i] && typeof k[i].x === 'number' ? k[i] : null }
+          const leftHip = kp(11), rightHip = kp(12);
+          const leftShoulder = kp(5), rightShoulder = kp(6);
+          let cx = null;
+          if(leftHip && rightHip){ cx = (leftHip.x + rightHip.x)/2; }
+          else if(leftShoulder && rightShoulder){ cx = (leftShoulder.x + rightShoulder.x)/2; }
+          else if(k.length>0 && k[0] && typeof k[0].x === 'number'){ cx = k[0].x; }
+
+          // draw keypoints (scale from video intrinsic to canvas)
+          const scaleX = overlay.width / (video.videoWidth || overlay.width);
+          const scaleY = overlay.height / (video.videoHeight || overlay.height);
+          octx.fillStyle = 'rgba(0,150,255,0.6)';
+          for(const kpItem of k){
+            if(kpItem && typeof kpItem.x === 'number'){
+              octx.beginPath();
+              octx.arc(kpItem.x * scaleX, kpItem.y * scaleY, 3, 0, Math.PI*2);
+              octx.fill();
+            }
+          }
+
+          if(cx !== null){
+            // normalized -1..1 using video.videoWidth (intrinsic)
+            const rel = cx / (video.videoWidth || overlay.width);
+            const xnorm = (rel * 2) - 1;
+            handlePayload({x: Number(xnorm.toFixed(2)), source: 'pose'});
+            // draw center line at scaled position
+            octx.strokeStyle = 'yellow'; octx.lineWidth = 2;
+            octx.beginPath(); octx.moveTo(cx * scaleX,0); octx.lineTo(cx * scaleX, overlay.height); octx.stroke();
+          }
+        }
+      }catch(e){
+        console.warn('pose detect error', e);
+      }
+      poseLoopId = requestAnimationFrame(poseLoop);
+    }
+
+    function startPoseTrack(){
+      // stop blazeface autotrack if running
+      if(typeof stopAutoTrack === 'function') stopAutoTrack();
+      loadPoseDetector().then(()=>{
+        poseActive = true;
+        if(poseLoopId) cancelAnimationFrame(poseLoopId);
+        poseLoopId = requestAnimationFrame(poseLoop);
+        addLog('PoseTrack started');
+      });
+    }
+    function stopPoseTrack(){
+      poseActive = false;
+      if(poseLoopId){ cancelAnimationFrame(poseLoopId); poseLoopId = null; }
+      octx.clearRect(0,0,overlay.width,overlay.height);
+      addLog('PoseTrack stopped');
+    }
+
+    const poseBtn = document.createElement('button');
+    poseBtn.className='btn';
+    poseBtn.textContent = 'Start PoseTrack';
+    poseBtn.style.marginTop = '6px';
+    poseBtn.addEventListener('click', ()=>{
+      if(!poseActive){ startPoseTrack(); poseBtn.textContent='Stop PoseTrack'; }
+      else{ stopPoseTrack(); poseBtn.textContent='Start PoseTrack'; }
+    });
+    document.querySelector('.controls').appendChild(poseBtn);
+  </script>
+</body>
+</html>

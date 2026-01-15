@@ -5,6 +5,8 @@ const app = express();
 
 const ROOT = __dirname;
 
+console.log(`Serving from ROOT: ${ROOT}`);
+
 app.use(express.static(ROOT, {
   index: 'index.html',
   extensions: ['html'],
@@ -21,10 +23,14 @@ app.get('/eye', (_req, res) => {
   res.sendFile(path.join(ROOT, 'eye.html'));
 });
 
+app.get('/body', (_req, res) => {
+  res.sendFile(path.join(ROOT, 'body.html'));
+});
+
 
 app.get('/healthz', (_req, res) => res.status(200).send('ok'));
 
-const PORT = process.env.PORT || 8088;
+const PORT = process.env.PORT || 8089;
 const server = app.listen(PORT, () => {
   console.log(`http://localhost:${PORT} 에서 실행 중`);
 });
