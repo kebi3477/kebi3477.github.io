@@ -12,7 +12,10 @@
   "keywords": [],
   "description": "",
   "dependencies": {
-    "express": "^5.1.0"
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "osc": "^2.4.5",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

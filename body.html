@@ -147,6 +147,7 @@
     }
 
     let lastPayload = null;
+    let commWs = null; // shared websocket to server (setupComm creates this)
     function handlePayload(raw){
       let payload = raw;
       if(typeof raw === 'string'){
@@ -185,22 +186,28 @@
         console.warn('preload check failed', e);
       }
 
-      // fallback WebSocket
-      const WS_URL = 'ws://127.0.0.1:7000';
+      // fallback WebSocket - create a shared connection to server /ws
+      // connect to the server's websocket endpoint on the same host/port
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      const host = location.hostname || '127.0.0.1';
+      const port = location.port || (location.protocol === 'https:' ? 443 : 80);
+      const WS_URL = `${proto}://${host}:${port}/ws`;
       try{
-        const ws = new WebSocket(WS_URL);
-        ws.addEventListener('open', ()=> addLog('WebSocket connected to '+WS_URL));
-        ws.addEventListener('message', (ev)=>{
-          // ev.data might be string or already object depending on server
-          let d = ev.data;
-          // try parse JSON string
-          if(typeof d === 'string'){
-            try{ d = JSON.parse(d); }catch(e){ /* keep string */ }
-          }
-          handlePayload(d);
-        });
-        ws.addEventListener('close', ()=> addLog('WebSocket closed'));
-        ws.addEventListener('error', (e)=> addLog('WebSocket error'));
+        if(!commWs || (commWs.readyState !== WebSocket.OPEN && commWs.readyState !== WebSocket.CONNECTING)){
+          commWs = new WebSocket(WS_URL);
+          commWs.addEventListener('open', ()=> addLog('WebSocket connected to '+WS_URL));
+          commWs.addEventListener('message', (ev)=>{
+            // ev.data might be string or already object depending on server
+            let d = ev.data;
+            // try parse JSON string
+            if(typeof d === 'string'){
+              try{ d = JSON.parse(d); }catch(e){ /* keep string */ }
+            }
+            handlePayload(d);
+          });
+          commWs.addEventListener('close', ()=> addLog('WebSocket closed'));
+          commWs.addEventListener('error', (e)=> addLog('WebSocket error'));
+        }
       }catch(e){
         addLog('WebSocket setup failed: '+e.message);
       }
@@ -362,6 +369,94 @@
     let poseActive = false;
     let poseLoopId = null;
 
+    // WebSocket sender for TouchDesigner (reuse shared commWs)
+    let wsStatus = 'disconnected';
+    let lastSendTs = 0;
+    const SEND_INTERVAL_MS = 34; // ~30Hz
+
+    function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+    function normalizeXY(rawX, rawY, vW, vH){
+      // Detect whether raw values look like normalized (0..1) or pixels (>1)
+      let x_raw = rawX;
+      let y_raw = rawY;
+      if(typeof x_raw !== 'number' || typeof y_raw !== 'number') return null;
+      if(x_raw > 1.001 || y_raw > 1.001){
+        // assume pixels
+        if(vW) x_raw = x_raw / vW;
+        if(vH) y_raw = y_raw / vH;
+      }
+      // now x_raw/y_raw expected 0..1
+      // x normalization: -1..1
+      let x_norm = (x_raw * 2) - 1;
+      // y normalization: 0.5 .. -0.625  (top=0 -> 0.5 ; bottom=1 -> -0.625)
+      const total = 1.125; // 0.5 - (-0.625)
+      let y_norm = 0.5 + ((1 - y_raw) * (-total));
+      // clamp
+      x_norm = clamp(x_norm, -1, 1);
+      y_norm = clamp(y_norm, -0.625, 0.5);
+      return {x: Number(x_norm.toFixed(4)), y: Number(y_norm.toFixed(4))};
+    }
+
+    function createTdWs(){
+      // ensure shared commWs exists and update status
+      try{
+        if(commWs && (commWs.readyState === WebSocket.OPEN || commWs.readyState === WebSocket.CONNECTING)){
+          wsStatus = commWs.readyState === WebSocket.OPEN ? 'open' : 'connecting';
+          updateWsStatusUI();
+          return;
+        }
+        // if commWs is not available, setupComm should create it at startup; attempt to create via same logic
+        // reuse setupComm creation by calling setupComm again (harmless)
+        setupComm();
+        wsStatus = 'connecting'; updateWsStatusUI();
+        if(commWs){
+          commWs.addEventListener('open', ()=>{ wsStatus = 'open'; addLog('TD WS (shared) connected'); updateWsStatusUI(); });
+          commWs.addEventListener('close', ()=>{ wsStatus = 'closed'; addLog('TD WS (shared) closed'); updateWsStatusUI(); });
+          commWs.addEventListener('error', (e)=>{ wsStatus = 'error'; addLog('TD WS (shared) error'); updateWsStatusUI(); });
+        }
+      }catch(e){ addLog('createTdWs error: '+e.message); wsStatus='error'; updateWsStatusUI(); }
+    }
+
+    function sendPoseToTd(xn, yn){
+      const now = Date.now();
+      if(now - lastSendTs < SEND_INTERVAL_MS) return; // throttle
+      lastSendTs = now;
+      const msg = {type:'pose', x: xn, y: yn, ts: now};
+      const s = JSON.stringify(msg);
+      if(commWs && commWs.readyState === WebSocket.OPEN){
+        commWs.send(s);
+        addLog(`SEND ${s}`);
+      }else{
+        addLog('TD WS not open, cannot send');
+      }
+      updateLastSentUI(xn, yn, wsStatus);
+    }
+
+    // UI widgets for WS status and last sent values (created lazily)
+    let wsStatusEl = null;
+    let lastSentEl = null;
+    function ensureUiFields(){
+      if(wsStatusEl) return;
+      const statusDiv = document.querySelector('.status');
+      wsStatusEl = document.createElement('p');
+      wsStatusEl.innerHTML = '<strong>TD WS:</strong> <span id="tdWsState">-</span>';
+      lastSentEl = document.createElement('p');
+      lastSentEl.innerHTML = '<strong>Last Sent:</strong> <span id="lastSent">-</span>';
+      statusDiv.appendChild(wsStatusEl);
+      statusDiv.appendChild(lastSentEl);
+    }
+    function updateWsStatusUI(){
+      ensureUiFields();
+      const sp = document.getElementById('tdWsState');
+      if(sp) sp.textContent = wsStatus;
+    }
+    function updateLastSentUI(x,y, state){
+      ensureUiFields();
+      const sp = document.getElementById('lastSent');
+      if(sp) sp.textContent = `x=${x} y=${y} ws=${state}`;
+    }
+
     async function loadPoseDetector(){
       if(poseDetector) return poseDetector;
       try{
@@ -387,10 +482,10 @@
           function kp(i){ return k[i] && typeof k[i].x === 'number' ? k[i] : null }
           const leftHip = kp(11), rightHip = kp(12);
           const leftShoulder = kp(5), rightShoulder = kp(6);
-          let cx = null;
-          if(leftHip && rightHip){ cx = (leftHip.x + rightHip.x)/2; }
-          else if(leftShoulder && rightShoulder){ cx = (leftShoulder.x + rightShoulder.x)/2; }
-          else if(k.length>0 && k[0] && typeof k[0].x === 'number'){ cx = k[0].x; }
+          let cx = null, cy = null;
+          if(leftHip && rightHip){ cx = (leftHip.x + rightHip.x)/2; cy = (leftHip.y + rightHip.y)/2; }
+          else if(leftShoulder && rightShoulder){ cx = (leftShoulder.x + rightShoulder.x)/2; cy = (leftShoulder.y + rightShoulder.y)/2; }
+          else if(k.length>0 && k[0] && typeof k[0].x === 'number'){ cx = k[0].x; cy = k[0].y; }
 
           // draw keypoints (scale from video intrinsic to canvas)
           const scaleX = overlay.width / (video.videoWidth || overlay.width);
@@ -404,14 +499,19 @@
             }
           }
 
-          if(cx !== null){
-            // normalized -1..1 using video.videoWidth (intrinsic)
-            const rel = cx / (video.videoWidth || overlay.width);
-            const xnorm = (rel * 2) - 1;
-            handlePayload({x: Number(xnorm.toFixed(2)), source: 'pose'});
-            // draw center line at scaled position
-            octx.strokeStyle = 'yellow'; octx.lineWidth = 2;
-            octx.beginPath(); octx.moveTo(cx * scaleX,0); octx.lineTo(cx * scaleX, overlay.height); octx.stroke();
+          if(cx !== null && cy !== null){
+            // cx/cy are likely in pixels (intrinsic coords). Convert to normalized 0..1 if needed in normalizeXY
+            const norm = normalizeXY(cx, cy, video.videoWidth, video.videoHeight);
+            if(norm){
+              // update UI payload and existing handler
+              handlePayload({x: norm.x, y: norm.y, source: 'pose-norm'});
+              // draw center line at scaled position
+              octx.strokeStyle = 'yellow'; octx.lineWidth = 2;
+              octx.beginPath(); octx.moveTo(cx * scaleX,0); octx.lineTo(cx * scaleX, overlay.height); octx.stroke();
+              // send to TouchDesigner (throttled)
+              createTdWs();
+              sendPoseToTd(norm.x, norm.y);
+            }
           }
         }
       }catch(e){
@@ -423,6 +523,9 @@
     function startPoseTrack(){
       // stop blazeface autotrack if running
       if(typeof stopAutoTrack === 'function') stopAutoTrack();
+      // ensure UI fields and attempt WS connect
+      ensureUiFields();
+      createTdWs();
       loadPoseDetector().then(()=>{
         poseActive = true;
         if(poseLoopId) cancelAnimationFrame(poseLoopId);
@@ -435,6 +538,9 @@
       if(poseLoopId){ cancelAnimationFrame(poseLoopId); poseLoopId = null; }
       octx.clearRect(0,0,overlay.width,overlay.height);
       addLog('PoseTrack stopped');
+      // keep shared websocket open for other comms; update status display
+      wsStatus = (commWs && commWs.readyState === WebSocket.OPEN) ? 'open' : 'disconnected';
+      updateWsStatusUI();
     }
 
     const poseBtn = document.createElement('button');
