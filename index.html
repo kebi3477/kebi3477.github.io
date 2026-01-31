@@ -43,8 +43,8 @@
     const BLINK_MAX = 5000;      // ms
     const BLINK_DURATION = 220;  // 닫힘→열림 총 시간(ms)
 
-    const eyeScale = 3;              // 전체 눈 크기 배수
-    const gapScale = 3;              // 눈 사이 간격 배수
+    const eyeScale = 2.8;            // 전체 눈 크기 배수 (약 -7%)
+    const gapScale = 2.7;            // 눈 사이 간격 배수 (약 -10%)
     const pupilEdgePadding = 0.15;   // 동공이 흰자 밖으로 나가지 않게 여유
 
     const eyeWidthFactor  = 1.45;    // 마름모 가로 폭(넓힐수록 더 길쭉)
@@ -214,8 +214,9 @@
       const gapBase  = minDim * state.eyeGapFactor;
       const R_want   = minDim * state.eyeballRFactor * eyeScale;
 
-      const marginW = w * 0.05;
-      const marginH = Math.max(h * 0.10, 20);
+      const safeMargin = Math.max(minDim * 0.06, 24 * dpr);
+      const marginW = Math.max(w * 0.06, safeMargin);
+      const marginH = Math.max(h * 0.12, safeMargin * 1.1);
       const maxR_byWidth  = Math.max(1, ((w - marginW*2) - gapBase) / 2);
       const maxR_byHeight = (h - marginH*2) * 0.5;
       const eyeballR = Math.min(R_want, maxR_byWidth, maxR_byHeight);
